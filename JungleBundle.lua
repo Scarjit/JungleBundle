@@ -81,8 +81,8 @@ end
 function Core:managers()
 	self.ts = TargetSelector(TARGET_LOW_HP_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
 	self.ts.name = "Target Select"
-	self.jm = minionManager(MINION_JUNGLE, myHero.range+myHero.boundingRadius, myHero, MINION_SORT_HEALTH_ASC)
-	self.mm = minionManager(MINION_ENEMY, myHero.range+myHero.boundingRadius, myHero, MINION_SORT_HEALTH_ASC)
+	self.jm = minionManager(MINION_JUNGLE, 1000, myHero, MINION_SORT_HEALTH_ASC)
+	self.mm = minionManager(MINION_ENEMY, 1000, myHero, MINION_SORT_HEALTH_ASC)
 end
 
 function Core:updateManagers()
