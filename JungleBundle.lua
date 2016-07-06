@@ -163,11 +163,7 @@ function Core:draw()
 	end
 end
 
-<<<<<<< HEAD
 function Core:smite()
-=======
-function Core:GetSmiteDamage()
->>>>>>> origin/master
 	if myHero.level <= 4 then
 		SmiteDamage = 370 + (myHero.level*20)
 	end
@@ -180,7 +176,6 @@ function Core:GetSmiteDamage()
 	if myHero.level > 14 then
 		SmiteDamage = 100 + (myHero.level*50)
 	end
-<<<<<<< HEAD
 	
 	if self.Menu.MiscSettings.UseSmite then
 		for i, jungle in pairs(jungleMinions.objects) do
@@ -193,9 +188,6 @@ function Core:GetSmiteDamage()
 			end
 		end
 	end	
-=======
-	return SmiteDamage
->>>>>>> origin/master
 end
 
 Class("ItemManager")
