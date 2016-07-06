@@ -117,3 +117,7 @@ class("Zac")
 function Zac:__init()
 	
 end
+
+function OnLoad()
+	Core()
+end
