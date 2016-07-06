@@ -64,6 +64,7 @@ function Core:__init()
 	end)
 	AddTickCallback(function ()
 		self:updateManagers()
+		self:autosmite()
 	end)
 end
 
@@ -114,7 +115,15 @@ function Core:menu()
 		self.Menu.HumanizerSettings:addParam("QSSHumanizerMaxValue", "Max Value", SCRIPT_PARAM_SLICE, 200, 0, 1000, 0)
 			self.Menu.HumanizerSettings:setCallback("QSSHumanizerMinValue", function (value) if value < self.Menu.HumanizerSettings.QSSHumanizerMinValue then self.Menu.HumanizerSettings.QSSHumanizerMaxValue = self.Menu.HumanizerSettings.QSSHumanizerMinValue end end)
 			self.Menu.HumanizerSettings:setCallback("QSSHumanizerMaxValue", function (value) if value > self.Menu.HumanizerSettings.QSSHumanizerMaxValue then self.Menu.HumanizerSettings.QSSHumanizerMinValue = self.Menu.HumanizerSettings.QSSHumanizerMaxValue end end)
-		
+		self.Menu.HumanizerSettings:addParam("SpaceHumanizer13","____________________________________________", 5, "")
+		self.Menu.HumanizerSettings:addParam("SpaceHumanizer14","", 5, "")
+		self.Menu.HumanizerSettings:addParam("SpellsHumanizerON", "Humanizer for Spells", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.HumanizerSettings:addParam("SpellsHumanizerMinValue", "Min Value", SCRIPT_PARAM_SLICE, 100, 0, 1000, 0)
+		self.Menu.HumanizerSettings:addParam("SpellsHumanizerMaxValue", "Max Value", SCRIPT_PARAM_SLICE, 200, 0, 1000, 0)
+			self.Menu.HumanizerSettings:setCallback("SpellsHumanizerMinValue", function (value) if value < self.Menu.HumanizerSettings.SpellsHumanizerMinValue then self.Menu.HumanizerSettings.SpellsHumanizerMaxValue = self.Menu.HumanizerSettings.SpellsHumanizerMinValue end end)
+			self.Menu.HumanizerSettings:setCallback("SpellsHumanizerMaxValue", function (value) if value > self.Menu.HumanizerSettings.SpellsHumanizerMaxValue then self.Menu.HumanizerSettings.SpellsHumanizerMinValue = self.Menu.HumanizerSettings.SpellsHumanizerMaxValue end end)
+
+
 	self.Menu:addSubMenu("Draw", "DrawSettings")
 		self.Menu.DrawSettings:addParam("DrawAaON", "Draw AA range", SCRIPT_PARAM_ONOFF, true)
 		self.Menu.DrawSettings:addParam("DrawTargetON", "Draw current target", SCRIPT_PARAM_ONOFF, true)
@@ -142,10 +151,10 @@ function Core:draw()
 		if self.Menu.KeySettings.comboON or self.Menu.KeySettings.HarrassON then
 			target = self.ts.target
 		end
-		if self.Menu.KeySettings.JungleClearON then
+		if self.Menu.KeySettings.JungleClearON and #self.jm.objects >= 1 then
 			target = self.jm.objects[1]
 		end
-		if not target and self.Menu.KeySettings.WaveClearON then
+		if not target and self.Menu.KeySettings.WaveClearON and #self.mm.objects >= 1 then
 			target = self.mm.objects[1]
 		end
 		if target then
@@ -154,7 +163,11 @@ function Core:draw()
 	end
 end
 
+<<<<<<< HEAD
 function Core:smite()
+=======
+function Core:GetSmiteDamage()
+>>>>>>> origin/master
 	if myHero.level <= 4 then
 		SmiteDamage = 370 + (myHero.level*20)
 	end
@@ -167,6 +180,7 @@ function Core:smite()
 	if myHero.level > 14 then
 		SmiteDamage = 100 + (myHero.level*50)
 	end
+<<<<<<< HEAD
 	
 	if self.Menu.MiscSettings.UseSmite then
 		for i, jungle in pairs(jungleMinions.objects) do
@@ -179,6 +193,9 @@ function Core:smite()
 			end
 		end
 	end	
+=======
+	return SmiteDamage
+>>>>>>> origin/master
 end
 
 Class("ItemManager")
