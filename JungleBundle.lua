@@ -48,6 +48,68 @@ function Core:__init()
 	self.ItemManager = ItemManager()
 end
 
+function Core:PrintMsg(msg)
+	PrintChat("<font color=\"#007f06\"><b>[</b></font><font color=\"#00bc06\"><b>Jungle Bundle</b></font><font color=\"#007f06\"><b>]</b></font> <font color=\"#10ff00\">"..msg.."</font>")
+end
+
+function Core:DrawMenu()
+	Menu = scriptConfig("Jungle Bundle", "Menu")
+
+	Menu:addSubMenu("Key Settings", "KeySettings")
+		Menu.KeySettings:addParam("comboON", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte(" "))
+		Menu.KeySettings:addParam("JungleClearON", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
+		Menu.KeySettings:addParam("WaveClearON", "Wave Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+		Menu.KeySettings:addParam("LastHitON", "Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
+		
+	Menu:addSubMenu("Items", "ItemsSettings")
+		Menu.ItemsSettings:addParam("SmiteChampON", "Use smite on champion", SCRIPT_PARAM_ONOFF, true)
+		Menu.ItemsSettings:addParam("OffensiveItemsON", "Use Offensive Items in combo mode", SCRIPT_PARAM_ONOFF, true)
+		Menu.ItemsSettings:addSubMenu("QSS","QSS")
+			Menu.ItemsSettings.QSS:addParam("Stun", "Remove stun", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Silence", "Remove silence", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Taunt", "Remove taunt", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Root", "Remove root", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Fear", "Remove fear", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Charm", "Remove charm", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Suppression", "Remove suppression", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Blind", "Remove blind", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("KnockUp", "Remove knock up", SCRIPT_PARAM_ONOFF, true)
+			Menu.ItemsSettings.QSS:addParam("Exhaust", "Remove exhaust", SCRIPT_PARAM_ONOFF, true)
+	
+	Menu:addSubMenu("Humanizer", "HumanizerSettings")
+		Menu.HumanizerSettings:addParam("SmiteHumanizerON", "Humanizer for Smite", SCRIPT_PARAM_ONOFF, true)
+		Menu.HumanizerSettings:addParam("SmiteHumanizerMinValue", "Min Value", SCRIPT_PARAM_SLICE, 100, 0, 1000, 0)
+		Menu.HumanizerSettings:addParam("SmiteHumanizerMaxValue", "Max Value", SCRIPT_PARAM_SLICE, 200, 0, 1000, 0)
+			Menu.HumanizerSettings:setCallback("SmiteHumanizerMinValue", function (value) if value < Menu.HumanizerSettings.SmiteHumanizerMinValue then Menu.HumanizerSettings.SmiteHumanizerMaxValue = Menu.HumanizerSettings.SmiteHumanizerMinValue end end)
+			Menu.HumanizerSettings:setCallback("SmiteHumanizerMaxValue", function (value) if value > Menu.HumanizerSettings.SmiteHumanizerMaxValue then Menu.HumanizerSettings.SmiteHumanizerMinValue = Menu.HumanizerSettings.SmiteHumanizerMaxValue end end)
+		Menu.HumanizerSettings:addParam("SpaceHumanizer11","____________________________________________", 5, "")
+		Menu.HumanizerSettings:addParam("SpaceHumanizer12","", 5, "")
+		Menu.HumanizerSettings:addParam("QSSHumanizerON", "Humanizer for QSS", SCRIPT_PARAM_ONOFF, true)
+		Menu.HumanizerSettings:addParam("QSSHumanizerMinValue", "Min Value", SCRIPT_PARAM_SLICE, 100, 0, 1000, 0)
+		Menu.HumanizerSettings:addParam("QSSHumanizerMaxValue", "Max Value", SCRIPT_PARAM_SLICE, 200, 0, 1000, 0)
+			Menu.HumanizerSettings:setCallback("QSSHumanizerMinValue", function (value) if value < Menu.HumanizerSettings.QSSHumanizerMinValue then Menu.HumanizerSettings.QSSHumanizerMaxValue = Menu.HumanizerSettings.QSSHumanizerMinValue end end)
+			Menu.HumanizerSettings:setCallback("QSSHumanizerMaxValue", function (value) if value > Menu.HumanizerSettings.QSSHumanizerMaxValue then Menu.HumanizerSettings.QSSHumanizerMinValue = Menu.HumanizerSettings.QSSHumanizerMaxValue end end)
+		
+	Menu:addSubMenu("Draw", "DrawSettings")
+		Menu.DrawSettings:addParam("DrawAaON", "Draw AA range", SCRIPT_PARAM_ONOFF, true)
+		Menu.DrawSettings:addParam("DrawTargetON", "Draw current target", SCRIPT_PARAM_ONOFF, true)
+		Menu.DrawSettings:addParam("LastHitDrawON", "Draw Last Hit Helper", SCRIPT_PARAM_ONOFF, true)
+		Menu.DrawSettings:addParam("SmiteDrawON", "Draw Smite Helper", SCRIPT_PARAM_ONOFF, true)
+
+	Menu:addSubMenu("Miscellaneous", "MiscSettings")
+		Menu.MiscSettings:addParam("UseSmite", "Smite Dragon, Rift Herald and Baron", SCRIPT_PARAM_ONOFF, true)
+		Menu.MiscSettings:addParam("SetSkin", "Select Skin", SCRIPT_PARAM_SLICE, 0, 0, 20, 0)
+			Menu.MiscSettings:setCallback("SetSkin", function (value) SetSkin(myHero, Menu.MiscSettings.SetSkin - 1) end)
+	
+	ts = TargetSelector(TARGET_LOW_HP_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
+	ts.name = "Target Select"
+	Menu:addTS(ts)
+	
+	Menu:addParam("space2", "", 5, "")
+	Menu:addParam("signature0", "              Jungle Bundle v"..version, 5, "")
+	Menu:addParam("signature1", "            by DrPhoenix and S1mple    ", 5, "")
+end
+
 class("ItemManager")
 function ItemManager()
 	self.OffensiveItemsList = {
