@@ -123,7 +123,6 @@ function Core:menu()
 			self.Menu.HumanizerSettings:setCallback("SpellsHumanizerMinValue", function (value) if value < self.Menu.HumanizerSettings.SpellsHumanizerMinValue then self.Menu.HumanizerSettings.SpellsHumanizerMaxValue = self.Menu.HumanizerSettings.SpellsHumanizerMinValue end end)
 			self.Menu.HumanizerSettings:setCallback("SpellsHumanizerMaxValue", function (value) if value > self.Menu.HumanizerSettings.SpellsHumanizerMaxValue then self.Menu.HumanizerSettings.SpellsHumanizerMinValue = self.Menu.HumanizerSettings.SpellsHumanizerMaxValue end end)
 
-
 	self.Menu:addSubMenu("Draw", "DrawSettings")
 		self.Menu.DrawSettings:addParam("DrawAaON", "Draw AA range", SCRIPT_PARAM_ONOFF, true)
 		self.Menu.DrawSettings:addParam("DrawTargetON", "Draw current target", SCRIPT_PARAM_ONOFF, true)
