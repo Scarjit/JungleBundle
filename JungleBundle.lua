@@ -15,7 +15,7 @@
 Changelog :
 
   BETA
-	0.01 : First release
+	0.1 : First release
 	
 	More Soon !
 	
