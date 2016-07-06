@@ -64,7 +64,7 @@ function Core:__init()
 	end)
 	AddTickCallback(function ()
 		self:updateManagers()
-		self:autosmite()
+		self:smite()
 	end)
 end
 
@@ -178,7 +178,7 @@ function Core:smite()
 	end
 	
 	if self.Menu.MiscSettings.UseSmite then
-		for i, jungle in pairs(jungleMinions.objects) do
+		for i, jungle in pairs(self.jm.objects) do
 			if jungle ~= nil then
 				if SmitePos ~= nil and myHero:CanUseSpell(SmitePos) == READY and GetDistance(jungle) <= 560 and jungle.health <= SmiteDamage then
 					if jungle.charName == "SRU_Baron" or jungle.charName == "SRU_Dragon_Water" or jungle.charName == "SRU_Dragon_Fire" or jungle.charName == "SRU_Dragon_Earth" or jungle.charName == "SRU_Dragon_Air" or jungle.charName == "SRU_Dragon_Elder" or jungle.charName == "SRU_RiftHerald" then
