@@ -154,6 +154,33 @@ function Core:draw()
 	end
 end
 
+function Core:smite()
+	if myHero.level <= 4 then
+		SmiteDamage = 370 + (myHero.level*20)
+	end
+	if myHero.level > 4 and myHero.level <= 9 then
+		SmiteDamage = 330 + (myHero.level*30)
+	end
+	if myHero.level > 9 and myHero.level <= 14 then
+		SmiteDamage = 240 + (myHero.level*40)
+	end
+	if myHero.level > 14 then
+		SmiteDamage = 100 + (myHero.level*50)
+	end
+	
+	if self.Menu.MiscSettings.UseSmite then
+		for i, jungle in pairs(jungleMinions.objects) do
+			if jungle ~= nil then
+				if SmitePos ~= nil and myHero:CanUseSpell(SmitePos) == READY and GetDistance(jungle) <= 560 and jungle.health <= SmiteDamage then
+					if jungle.charName == "SRU_Baron" or jungle.charName == "SRU_Dragon_Water" or jungle.charName == "SRU_Dragon_Fire" or jungle.charName == "SRU_Dragon_Earth" or jungle.charName == "SRU_Dragon_Air" or jungle.charName == "SRU_Dragon_Elder" or jungle.charName == "SRU_RiftHerald" then
+						DelayAction(function() CastSpell(SmitePos, jungle) end, SmiteHumanizer)
+					end
+				end
+			end
+		end
+	end	
+end
+
 Class("ItemManager")
 function ItemManager:__init()
 	self.OffensiveItemsList = {
