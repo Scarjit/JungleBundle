@@ -56,18 +56,39 @@ Class("Core")
 function Core:__init()
 	self.version = "0.1"
 	if not self:loadchamp() then return end
+	self:managers()
 	self:menu()
 	self.ItemManager = ItemManager()
+	AddDrawCallback(function ()
+		self:draw()
+	end)
+	AddTickCallback(function ()
+		self:updateManagers()
+	end)
 end
 
 function Core:loadchamp()
 	if (champions[myHero.charName] and _ENV["_" .. myHero.charName]) then
-		champion = _ENV["_" .. myHero.charName]()
+		self.champion = _ENV["_" .. myHero.charName]()
+		printC("Loading "..myHero.charName)
 		return true
 	else
 		print(myHero.charName.. " - Is not Supported")
 		return false
 	end
+end
+
+function Core:managers()
+	self.ts = TargetSelector(TARGET_LOW_HP_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
+	self.ts.name = "Target Select"
+	self.jm = minionManager(MINION_JUNGLE, myHero.range+myHero.boundingRadius, myHero, MINION_SORT_HEALTH_ASC)
+	self.mm = minionManager(MINION_ENEMY, myHero.range+myHero.boundingRadius, myHero, MINION_SORT_HEALTH_ASC)
+end
+
+function Core:updateManagers()
+	self.ts:update()
+	self.jm:update()
+	self.mm:update()
 end
 
 function Core:menu()
@@ -76,7 +97,8 @@ function Core:menu()
 	self.Menu:addSubMenu("Key Settings", "KeySettings")
 		self.Menu.KeySettings:addParam("comboON", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte(" "))
 		self.Menu.KeySettings:addParam("JungleClearON", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
-		self.Menu.KeySettings:addParam("WaveClearON", "Wave Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+		self.Menu.KeySettings:addParam("WaveClearON", "Wave Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
+		self.Menu.KeySettings:addParam("HarrassON", "Harrass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
 		self.Menu.KeySettings:addParam("LastHitON", "Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
 			
 	self.Menu:addSubMenu("Humanizer", "HumanizerSettings")
@@ -104,13 +126,32 @@ function Core:menu()
 		self.Menu.MiscSettings:addParam("SetSkin", "Select Skin", SCRIPT_PARAM_SLICE, 0, 0, 20, 0)
 			self.Menu.MiscSettings:setCallback("SetSkin", function (value) SetSkin(myHero, self.Menu.MiscSettings.SetSkin - 1) end)
 	
-	ts = TargetSelector(TARGET_LOW_HP_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
-	ts.name = "Target Select"
-	self.Menu:addTS(ts)
+	self.Menu:addTS(self.ts)
 	
 	self.Menu:addParam("space2", "", 5, "")
 	self.Menu:addParam("signature0", "              Jungle Bundle v"..self.version, 5, "")
 	self.Menu:addParam("signature1", "            by DrPhoenix and S1mple    ", 5, "")
+end
+
+function Core:draw()
+	if self.Menu.DrawSettings.DrawAaON then
+		DrawCircle3D(myHero.x,myHero.y,myHero.z,myHero.range+myHero.boundingRadius,1,ARGB(255,0,255,0),15)
+	end
+	if self.Menu.DrawSettings.DrawTargetON then
+		local target = nil
+		if self.Menu.KeySettings.comboON or self.Menu.KeySettings.HarrassON then
+			target = self.ts.target
+		end
+		if self.Menu.KeySettings.JungleClearON then
+			target = self.jm.objects[1]
+		end
+		if not target and self.Menu.KeySettings.WaveClearON then
+			target = self.mm.objects[1]
+		end
+		if target then
+			DrawCircle3D(target.x,target.y,target.z,25,3,ARGB(255,255,0,0),8)
+		end
+	end
 end
 
 Class("ItemManager")
@@ -177,7 +218,7 @@ function _Rammus:__init()
 	
 end
 Class("_RekSai")
-function __RekSai:__init()
+function _RekSai:__init()
 	
 end
 Class("_Shyvana")
