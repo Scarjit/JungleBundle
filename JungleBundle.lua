@@ -181,5 +181,5 @@ function Zac:__init()
 end
 
 function OnLoad()
-	Core()
+	Core = Core()
 end
