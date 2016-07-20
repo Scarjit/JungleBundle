@@ -54,42 +54,29 @@ end
 
 Class("Core")
 function Core:__init()
+	if not champions[myHero.charName] then return end
+	self.TargetSelector = TargetSelector()
 	self.version = "0.1"
-	if not self:loadchamp() then return end
-	self:managers()
 	self:menu()
-	self.ItemManager = ItemManager()
+	self.ItemManager = ItemManager(self.Menu)
 	AddDrawCallback(function ()
 		self:draw()
 	end)
 	AddTickCallback(function ()
-		self:updateManagers()
 		self:smite()
 	end)
+	self:loadchamp()
 end
 
 function Core:loadchamp()
 	if (champions[myHero.charName] and _ENV["_" .. myHero.charName]) then
-		self.champion = _ENV["_" .. myHero.charName]()
+		self.champion = _ENV["_" .. myHero.charName](self.Menu, self.TargetSelector)
 		printC("Loading "..myHero.charName)
 		return true
 	else
 		print(myHero.charName.. " - Is not Supported")
 		return false
 	end
-end
-
-function Core:managers()
-	self.ts = TargetSelector(TARGET_LOW_HP_PRIORITY, 1000, DAMAGE_PHYSICAL, true)
-	self.ts.name = "Target Select"
-	self.jm = minionManager(MINION_JUNGLE, 1000, myHero, MINION_SORT_HEALTH_ASC)
-	self.mm = minionManager(MINION_ENEMY, 1000, myHero, MINION_SORT_HEALTH_ASC)
-end
-
-function Core:updateManagers()
-	self.ts:update()
-	self.jm:update()
-	self.mm:update()
 end
 
 function Core:menu()
@@ -134,8 +121,6 @@ function Core:menu()
 		self.Menu.MiscSettings:addParam("SetSkin", "Select Skin", SCRIPT_PARAM_SLICE, 0, 0, 20, 0)
 			self.Menu.MiscSettings:setCallback("SetSkin", function (value) SetSkin(myHero, self.Menu.MiscSettings.SetSkin - 1) end)
 	
-	self.Menu:addTS(self.ts)
-	
 	self.Menu:addParam("space2", "", 5, "")
 	self.Menu:addParam("signature0", "              Jungle Bundle v"..self.version, 5, "")
 	self.Menu:addParam("signature1", "            by DrPhoenix and S1mple    ", 5, "")
@@ -148,13 +133,13 @@ function Core:draw()
 	if self.Menu.DrawSettings.DrawTargetON then
 		local target = nil
 		if self.Menu.KeySettings.comboON or self.Menu.KeySettings.HarrassON then
-			target = self.ts.target
+			target = self.TargetSelector:GetEnemyHero(myHero.range + myHero.boundingRadius)
 		end
-		if self.Menu.KeySettings.JungleClearON and #self.jm.objects >= 1 then
-			target = self.jm.objects[1]
+		if self.Menu.KeySettings.JungleClearON and self.TargetSelector:GetJungleMinion(myHero.range + myHero.boundingRadius) ~= nil then
+			target = self.TargetSelector:GetJungleMinion(myHero.range + myHero.boundingRadius)
 		end
-		if not target and self.Menu.KeySettings.WaveClearON and #self.mm.objects >= 1 then
-			target = self.mm.objects[1]
+		if not target and self.Menu.KeySettings.WaveClearON and self.TargetSelector:GetEnemyMinion(myHero.range + myHero.boundingRadius) ~= nil then
+			target = self.TargetSelector:GetEnemyMinion(myHero.range + myHero.boundingRadius)
 		end
 		if target then
 			DrawCircle3D(target.x,target.y,target.z,25,3,ARGB(255,255,0,0),8)
@@ -163,34 +148,39 @@ function Core:draw()
 end
 
 function Core:smite()
-	if myHero.level <= 4 then
-		SmiteDamage = 370 + (myHero.level*20)
-	end
-	if myHero.level > 4 and myHero.level <= 9 then
-		SmiteDamage = 330 + (myHero.level*30)
-	end
-	if myHero.level > 9 and myHero.level <= 14 then
-		SmiteDamage = 240 + (myHero.level*40)
-	end
-	if myHero.level > 14 then
-		SmiteDamage = 100 + (myHero.level*50)
-	end
-	
 	if self.Menu.MiscSettings.UseSmite then
-		for i, jungle in pairs(self.jm.objects) do
-			if jungle ~= nil then
-				if SmitePos ~= nil and myHero:CanUseSpell(SmitePos) == READY and GetDistance(jungle) <= 560 and jungle.health <= SmiteDamage then
-					if jungle.charName == "SRU_Baron" or jungle.charName == "SRU_Dragon_Water" or jungle.charName == "SRU_Dragon_Fire" or jungle.charName == "SRU_Dragon_Earth" or jungle.charName == "SRU_Dragon_Air" or jungle.charName == "SRU_Dragon_Elder" or jungle.charName == "SRU_RiftHerald" then
-						DelayAction(function() CastSpell(SmitePos, jungle) end, SmiteHumanizer)
-					end
-				end
+		if self.TargetSelector:GetJungleMinion(560) == nil then return end
+
+		if myHero.level <= 4 then
+			SmiteDamage = 370 + (myHero.level*20)
+		end
+		if myHero.level > 4 and myHero.level <= 9 then
+			SmiteDamage = 330 + (myHero.level*30)
+		end
+		if myHero.level > 9 and myHero.level <= 14 then
+			SmiteDamage = 240 + (myHero.level*40)
+		end
+		if myHero.level > 14 then
+			SmiteDamage = 100 + (myHero.level*50)
+		end
+		if self.Menu.HumanizerSettings.SmiteHumanizerON then
+			SmiteHumanizer = math.random(self.Menu.HumanizerSettings.SmiteHumanizerMinValue/1000,self.Menu.HumanizerSettings.SmiteHumanizerMaxValue/1000)
+		else
+			SmiteHumanizer = 0
+		end
+
+		local jungle = self.TargetSelector:GetJungleMinion(560)
+		if SmitePos ~= nil and myHero:CanUseSpell(SmitePos) == READY and jungle.health <= SmiteDamage then
+			if jungle.charName == "SRU_Baron" or jungle.charName == "SRU_Dragon_Water" or jungle.charName == "SRU_Dragon_Fire" or jungle.charName == "SRU_Dragon_Earth" or jungle.charName == "SRU_Dragon_Air" or jungle.charName == "SRU_Dragon_Elder" or jungle.charName == "SRU_RiftHerald" then
+				DelayAction(function() CastSpell(SmitePos, jungle) end, SmiteHumanizer)
 			end
 		end
 	end	
 end
 
 Class("ItemManager")
-function ItemManager:__init()
+function ItemManager:__init(menu)
+	self.Menu = menu
 	self.OffensiveItemsList = {
 		TMT = { id = 3077, range = 189, reqTarget = false, slot = nil }, -- Tiamat
 		THD = { id = 3074, range = 189, reqTarget = false, slot = nil }, -- Ravenous Hydra
@@ -208,28 +198,99 @@ function ItemManager:__init()
 		QSS = { id = 3140, slot = nil }, -- Quicksilver Sash
 		MCS = { id = 3139, slot = nil } -- Mercurial Scimitar
 	}
+	self:menu()
 end
 
 function ItemManager:menu()
-	Core.Menu:addSubMenu("Items", "ItemsSettings")
-	Core.Menu.ItemsSettings:addParam("SmiteChampON", "Use smite on champion", SCRIPT_PARAM_ONOFF, true)
-	Core.Menu.ItemsSettings:addParam("OffensiveItemsON", "Use Offensive Items in combo mode", SCRIPT_PARAM_ONOFF, true)
-	Core.Menu.ItemsSettings:addSubMenu("QSS","QSS")
-		Core.Menu.ItemsSettings.QSS:addParam("Stun", "Remove stun", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Silence", "Remove silence", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Taunt", "Remove taunt", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Root", "Remove root", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Fear", "Remove fear", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Charm", "Remove charm", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Suppression", "Remove suppression", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Blind", "Remove blind", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("KnockUp", "Remove knock up", SCRIPT_PARAM_ONOFF, true)
-		Core.Menu.ItemsSettings.QSS:addParam("Exhaust", "Remove exhaust", SCRIPT_PARAM_ONOFF, true)
+	self.Menu:addSubMenu("Items", "ItemsSettings")
+	self.Menu.ItemsSettings:addParam("SmiteChampON", "Use smite on champion", SCRIPT_PARAM_ONOFF, true)
+	self.Menu.ItemsSettings:addParam("OffensiveItemsON", "Use Offensive Items in combo mode", SCRIPT_PARAM_ONOFF, true)
+	self.Menu.ItemsSettings:addSubMenu("QSS","QSS")
+		self.Menu.ItemsSettings.QSS:addParam("Stun", "Remove stun", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Silence", "Remove silence", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Taunt", "Remove taunt", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Root", "Remove root", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Fear", "Remove fear", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Charm", "Remove charm", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Suppression", "Remove suppression", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Blind", "Remove blind", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("KnockUp", "Remove knock up", SCRIPT_PARAM_ONOFF, true)
+		self.Menu.ItemsSettings.QSS:addParam("Exhaust", "Remove exhaust", SCRIPT_PARAM_ONOFF, true)
+end
+
+function CastSpellHumanized(menu, slot, target, posX, posY)
+	if myHero:CanUseSpell(slot) ~= 0 then return end
+	if menu.HumanizerSettings.SpellsHumanizerON then
+		SpellHumanizer = math.random(menu.HumanizerSettings.SpellsHumanizerMinValue/1000, menu.HumanizerSettings.SpellsHumanizerMaxValue/1000)
+	else
+		SpellHumanizer = 0
+	end
+	if target then
+		DelayAction(function ()
+			CastSpell(slot, target)
+		end, SpellHumanizer)
+	else
+		DelayAction(function ()
+			CastSpell(slot, posX, posY)
+		end, SpellHumanizer)
+	end
 end
 
 Class("_Evelynn")
-function _Evelynn:__init()
-	printC("Evelynn loading")
+function _Evelynn:__init(menu, TargetSelector)
+	self.menu = menu
+	self.TargetSelector = TargetSelector
+	self:Menu()
+	AddTickCallback(function ()
+		self:jc()
+		self:lc()
+		self:h()
+		self:c()
+	end)
+end
+
+function _Evelynn:Menu()
+	self.menu:addSubMenu("Evelynn", "Evelynn")
+		self.menu.Evelynn:addSubMenu("Jungle Clear", "jc")
+			self.menu.Evelynn.jc:addParam("UseQ", "Use Hate Spike (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.jc:addParam("UseE", "Use Ravage (E)", SCRIPT_PARAM_ONOFF, true)
+		self.menu.Evelynn:addSubMenu("Lane Clear", "lc")
+			self.menu.Evelynn.lc:addParam("UseQ", "Use Hate Spike (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.lc:addParam("UseE", "Use Ravage (E)", SCRIPT_PARAM_ONOFF, true)
+		self.menu.Evelynn:addSubMenu("Harrass", "h")
+			self.menu.Evelynn.h:addParam("UseQ", "Use Hate Spike (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.h:addParam("UseE", "Use Ravage (E)", SCRIPT_PARAM_ONOFF, true)
+		self.menu.Evelynn:addSubMenu("Combo", "c")
+			self.menu.Evelynn.c:addParam("UseQ", "Use Hate Spike (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.c:addParam("UseW", "Use Dark Frenzy (W)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.c:addParam("UseE", "Use Ravage (E)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.c:addParam("UseR", "Use Argony's Embrace (R)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Evelynn.c:addParam("space", "", 5, "")
+			self.menu.Evelynn.c:addParam("minR", "Minimum Enemy's for R", SCRIPT_PARAM_SLICE, 3,1,5,0)
+		self.menu.Evelynn:addSubMenu("Anti-Slow","as")
+			self.menu.Evelynn.as:addParam("autoW", "Auto W if slowed", SCRIPT_PARAM_ONOFF, true)
+end
+
+function _Evelynn:jc()
+	if not self.menu.KeySettings.JungleClearON then return end
+	if self.menu.Evelynn.jc.UseQ then
+		target = self.TargetSelector:GetJungleMinion(500)
+		if target then
+			CastSpellHumanized(self.menu, _Q, target)
+		end
+	end
+end
+
+function _Evelynn:lc()
+	
+end
+
+function _Evelynn:h()
+	
+end
+
+function _Evelynn:c()
+	
 end
 
 Class("_Hecarim")
@@ -275,6 +336,206 @@ end
 Class("_Zac")
 function _Zac:__init()
 	
+end
+
+Class("TargetSelector")
+function TargetSelector:__init()
+
+	self.enemyHeroes = GetEnemyHeroes()
+
+	self.AllyForces = {}
+	for _,v in pairs(GetAllyHeroes()) do
+		self.AllyForces[#self.AllyForces+1] = v
+	end
+	self.Minions = {}
+	self.JungleMinions = {}
+	self.Structures = {}
+
+	--On Reload
+	for i = 1, objManager.maxObjects do
+		local object = objManager:getObject(i)
+		if object and object.valid and object.type and object.type == "obj_AI_Minion" then
+			if object.team ~= myHero.team then
+				if object.charName:find("Minion") then
+					self.Minions[#self.Minions+1] = object
+				else
+					self.JungleMinions[#self.JungleMinions+1] = object
+				end
+			else
+				if object.charName:find("Minion") then
+					self.AllyForces[#self.AllyForces+1] = object 
+				end
+			end
+		elseif object and object.valid and object.health and object.health > 1 and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") and object.team ~= myHero.team then
+			self.Structures[#self.Structures+1] = object
+		end
+	end
+
+	AddCreateObjCallback(function (object)
+		if object and object.valid and object.type and object.type == "obj_AI_Minion" then
+			if object.team ~= myHero.team then
+				if object.charName:find("Minion") then
+					self.Minions[#self.Minions+1] = object
+				else
+					self.JungleMinions[#self.JungleMinions+1] = object
+				end
+			else
+				if object.charName:find("Minion") then
+					self.AllyForces[#self.AllyForces+1] = object 
+				end
+			end
+		elseif object and object.valid and object.health and object.health > 1 and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") and object.team ~= myHero.team then
+			self.Structures[#self.Structures+1] = object
+		end
+	end)
+
+	AddDeleteObjCallback(function (object)
+		local a = {}
+		for _,v in pairs(GetAllyHeroes()) do
+			a[#a+1] = v
+		end
+		local m = {}
+		local j = {}
+		local s = {}
+		for _, v in pairs(self.AllyForces) do
+			if v.networkID ~= object.networkID then
+				a[#a+1] = v
+			end
+		end
+		for _, v in pairs(self.Minions) do
+			if v.networkID ~= object.networkID then
+				m[#m+1] = v
+			end
+		end
+		for _, v in pairs(self.JungleMinions) do
+			if v.networkID ~= object.networkID then
+				j[#j+1] = v
+			end
+		end
+		for _, v in pairs(self.Structures) do
+			if v.networkID ~= object.networkID then
+				s[#s+1] = v
+			end
+		end
+		self.AllyForces = a
+		self.Minions = m
+		self.JungleMinions = j
+		self.Structures = s
+	end)
+end
+
+function TargetSelector:IsUnderTower(target,range)
+	local tower = nil
+	for _,v in pairs(GetTurrets()) do
+		if v and v.team ~= myHero.team then
+			if GetDistance(v,target) < range then
+				tower = v
+			end
+		end
+	end
+	return tower
+end
+
+function TargetSelector:FriendlyUnderTower(tower)
+	for _,v in pairs(self.AllyForces) do
+		if v and not v.dead and v.health > 1 and GetDistance(v,tower) < 800 and not v.isMe then
+			local turret = self:IsUnderTower(v,800)
+			if turret and tower.networkID == turret.networkID then
+				return true
+			end
+		end
+	end
+end
+
+function TargetSelector:IsDangerZone(position)
+	local turret = self:IsUnderTower(position,1025)
+	if turret and GetDistance(turret,myHero) < 1025 then
+		if self:FriendlyUnderTower(turret) then
+			return false
+		else
+			return true
+		end
+		return true
+	end
+	return false
+end
+
+function TargetSelector:GetEnemyHero(range)
+	local t = nil
+	for _, v in pairs(self.enemyHeroes) do
+		if v and ValidTarget(v) and GetDistance(v) < range+v.boundingRadius then
+			if t and v.health < t.health then
+				t = v
+			elseif not t then
+				t = v
+			end
+		end
+	end
+	return t
+end
+
+function TargetSelector:GetEnemyMinion(range)
+	local t = nil
+	for _, v in pairs(self.Minions) do
+		if v and ValidTarget(v) and GetDistance(v) < range+v.boundingRadius then
+			if t and v.health < t.health then
+				t = v
+			elseif not t then
+				t = v
+			end
+		end
+	end
+	return t
+end
+
+function TargetSelector:GetAllEnemyMinions(range)
+	local n = {}
+	for _, v in pairs(self.Minions) do
+		if GetDistance(v) < range+v.boundingRadius then
+			n[#n+1] = v
+		end
+	end	
+	return n
+end
+
+function TargetSelector:GetJungleMinion(range)
+	local t = nil
+	for _, v in pairs(self.JungleMinions) do
+		if v and ValidTarget(v) and GetDistance(v) < range+v.boundingRadius then
+			if t and v.health < t.health then
+				t = v
+			elseif not t then
+				t = v
+			end
+		end
+	end
+	return t
+end
+
+function TargetSelector:GetStructurTarget(range)
+	for _, v in pairs(self.Structures) do
+		if v and v.valid and v.health > 0 and GetDistance(v) < range+v.boundingRadius and v.bTargetable and v.bInvulnerable == 0 then
+			return v
+		end
+	end
+end
+
+function TargetSelector:GetAllTargets(range)
+	local n = {}
+	n = self:GetAllEnemyMinions(range)
+	for _,v in pairs(self.JungleMinions) do
+		if v and v.valid and ValidTarget(v) and GetDistance(v) < range+v.boundingRadius then
+			n[#n+1] = v
+		end
+	end
+
+	for _,v in pairs(self.Structures) do
+		if v and v.valid and v.health > 0 and GetDistance(v) < range+v.boundingRadius and v.bTargetable and v.bInvulnerable == 0 then
+			n[#n+1] = v
+		end
+	end
+
+	return n
 end
 
 function OnLoad()
