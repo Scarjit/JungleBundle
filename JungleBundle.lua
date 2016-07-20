@@ -229,7 +229,7 @@ end
 
 Class("_Evelynn")
 function _Evelynn:__init()
-	
+	printC("Evelynn loading")
 end
 
 Class("_Hecarim")
