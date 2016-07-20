@@ -40,6 +40,17 @@ local champions = {
 assert(load(Base64Decode("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"), nil, "bt", _ENV))()
 TrackerLoad("")
 
+if not _G.UPLloaded then
+  if FileExist(LIB_PATH .. "/UPL.lua") then
+    require("UPL")
+    _G.UPL = UPL()
+  else 
+    print("Downloading UPL, please don't press F9")
+    DelayAction(function() DownloadFile("https://raw.github.com/nebelwolfi/BoL/master/Common/UPL.lua".."?rand="..math.random(1,10000), LIB_PATH.."UPL.lua", function () print("Successfully downloaded UPL. Press F9 twice.") end) end, 3) 
+    return
+  end
+end
+
 local function printC(arg)
 	print("<font color=\"#007f06\"><b>[</b></font><font color=\"#00bc06\"><b>Jungle Bundle</b></font><font color=\"#007f06\"><b>]</b></font> <font color=\"#10ff00\">"..arg.."</font>")
 end
@@ -218,8 +229,25 @@ function ItemManager:menu()
 		self.Menu.ItemsSettings.QSS:addParam("Exhaust", "Remove exhaust", SCRIPT_PARAM_ONOFF, true)
 end
 
+Qsceduled = false
+Wsceduled = false
+Esceduled = false
+Rsceduled = false
 function CastSpellHumanized(menu, slot, target, posX, posY)
 	if myHero:CanUseSpell(slot) ~= 0 then return end
+	if slot == _Q then
+		if Qsceduled then return end
+		Qsceduled = true
+	elseif slot == _W then
+		if Wsceduled then return end
+		Wsceduled = true
+	elseif slot == _E then
+		if Esceduled then return end
+		Esceduled = true
+	else
+		if Rsceduled then return end
+		Rsceduled = true
+	end
 	if menu.HumanizerSettings.SpellsHumanizerON then
 		SpellHumanizer = math.random(menu.HumanizerSettings.SpellsHumanizerMinValue/1000, menu.HumanizerSettings.SpellsHumanizerMaxValue/1000)
 	else
@@ -228,10 +256,47 @@ function CastSpellHumanized(menu, slot, target, posX, posY)
 	if target then
 		DelayAction(function ()
 			CastSpell(slot, target)
+
+			if slot == _Q then
+				Qsceduled = false
+			elseif slot == _W then
+				Wsceduled = false
+			elseif slot == _E then
+				Esceduled = false
+			else
+				Rsceduled = false
+			end
+
+		end, SpellHumanizer)
+	elseif posX and posY then
+		DelayAction(function ()
+			CastSpell(slot, posX, posY)
+
+			if slot == _Q then
+				Qsceduled = false
+			elseif slot == _W then
+				Wsceduled = false
+			elseif slot == _E then
+				Esceduled = false
+			else
+				Rsceduled = false
+			end
+
 		end, SpellHumanizer)
 	else
 		DelayAction(function ()
-			CastSpell(slot, posX, posY)
+			CastSpell(slot)
+
+			if slot == _Q then
+				Qsceduled = false
+			elseif slot == _W then
+				Wsceduled = false
+			elseif slot == _E then
+				Esceduled = false
+			else
+				Rsceduled = false
+			end
+
 		end, SpellHumanizer)
 	end
 end
@@ -241,12 +306,24 @@ function _Evelynn:__init(menu, TargetSelector)
 	self.menu = menu
 	self.TargetSelector = TargetSelector
 	self:Menu()
+	self:SetupUPL()
 	AddTickCallback(function ()
 		self:jc()
 		self:lc()
 		self:h()
 		self:c()
 	end)
+	AddApplyBuffCallback(function (src, target, buff)
+		self:applybuff(src, target, buff)
+	end)
+end
+
+function _Evelynn:applybuff(src, target, buff)
+	if target and target.isMe and buff.type == 3 then --Slow
+		if self.menu.Evelynn.as.autoW then
+			CastSpellHumanized(self.menu, _W)
+		end
+	end
 end
 
 function _Evelynn:Menu()
@@ -266,31 +343,104 @@ function _Evelynn:Menu()
 			self.menu.Evelynn.c:addParam("UseE", "Use Ravage (E)", SCRIPT_PARAM_ONOFF, true)
 			self.menu.Evelynn.c:addParam("UseR", "Use Argony's Embrace (R)", SCRIPT_PARAM_ONOFF, true)
 			self.menu.Evelynn.c:addParam("space", "", 5, "")
+			self.menu.Evelynn.c:addParam("WFarRange", "Search Range Modificator for W", SCRIPT_PARAM_SLICE, 1.5, 1.01, 3, 2)
 			self.menu.Evelynn.c:addParam("minR", "Minimum Enemy's for R", SCRIPT_PARAM_SLICE, 3,1,5,0)
 		self.menu.Evelynn:addSubMenu("Anti-Slow","as")
 			self.menu.Evelynn.as:addParam("autoW", "Auto W if slowed", SCRIPT_PARAM_ONOFF, true)
 end
 
+function _Evelynn:SetupUPL()
+	UPL:AddToMenu(self.menu)
+	UPL:AddSpell(_R, {speed = math.huge, delay = 0.25, range = 650, width = 500, collision = false, aoe = true, type="circular"})
+end
+
 function _Evelynn:jc()
 	if not self.menu.KeySettings.JungleClearON then return end
-	if self.menu.Evelynn.jc.UseQ then
+	if self.menu.Evelynn.jc.UseQ and myHero:CanUseSpell(_Q) == 0 then
 		target = self.TargetSelector:GetJungleMinion(500)
 		if target then
 			CastSpellHumanized(self.menu, _Q, target)
 		end
 	end
+	if self.menu.Evelynn.jc.UseE and myHero:CanUseSpell(_E) == 0 then
+		target = self.TargetSelector:GetJungleMinion(225)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
 end
 
 function _Evelynn:lc()
-	
+	if not self.menu.KeySettings.WaveClearON then return end
+	if self.menu.Evelynn.lc.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetEnemyMinion(500)
+		if target then
+			CastSpellHumanized(self.menu, _Q, target)
+		end
+	end
+	if self.menu.Evelynn.lc.UseE and myHero:CanUseSpell(_E) == 0 then
+		target = self.TargetSelector:GetEnemyMinion(225)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
 end
 
 function _Evelynn:h()
-	
+	if not self.menu.KeySettings.HarrassON then return end
+	if self.menu.Evelynn.h.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetEnemyHero(500)
+		if target then
+			CastSpellHumanized(self.menu, _Q, target)
+		end
+	end
+	if self.menu.Evelynn.h.UseE and myHero:CanUseSpell(_E) == 0 then
+		target = self.TargetSelector:GetEnemyHero(225)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
 end
 
 function _Evelynn:c()
-	
+	if not self.menu.KeySettings.comboON then return end
+	if self.menu.Evelynn.c.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetEnemyHero(500)
+		if target then
+			CastSpellHumanized(self.menu, _Q, target)
+		end
+	end
+	if self.menu.Evelynn.c.UseW and myHero:CanUseSpell(_W) == 0 then
+		targets = TargetSelector:GetEnemyHeroesInRange(myHero.range+myHero.boundingRadius)
+		fartargets = TargetSelector:GetEnemyHeroesInRange((myHero.range+myHero.boundingRadius)*self.menu.Evelynn.c.WFarRange)
+		if #targets == 0 and #fartargets > 0 then
+			CastSpellHumanized(self.menu, _W)
+		end
+	end
+	if self.menu.Evelynn.c.UseE and myHero:CanUseSpell(_E) == 0 then
+		target = self.TargetSelector:GetEnemyHero(225)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
+	if self.menu.Evelynn.c.UseR and myHero:CanUseSpell(_R) == 0 then
+		targets = self.TargetSelector:GetEnemyHeroesInRange(1150) --Cast Range + Spell Width
+		local predictedpos = {}
+		if #targets >= self.menu.Evelynn.c.minR then
+			
+			for _,v in ipairs(targets) do
+				CastPosition, HitChance, _ = UPL:Predict(_R, myHero,v)
+				if CastPosition and HitChance > 0 then
+					predictedpos[#predictedpos+1] = Vector(CastPosition)
+				end
+			end
+
+			castpos = _CalcSpellPosForGroup(500,650, predictedpos)
+			if castpos then
+				CastSpellHumanized(self.menu, _R, nil, castpos.x, castpos.z)
+			end
+		end
+	end
 end
 
 Class("_Hecarim")
@@ -341,11 +491,9 @@ end
 Class("TargetSelector")
 function TargetSelector:__init()
 
-	self.enemyHeroes = GetEnemyHeroes()
-
 	self.AllyForces = {}
 	for _,v in pairs(GetAllyHeroes()) do
-		self.AllyForces[#self.AllyForces+1] = v
+		self.AllyForces[v.networkID] = v
 	end
 	self.Minions = {}
 	self.JungleMinions = {}
@@ -357,13 +505,13 @@ function TargetSelector:__init()
 		if object and object.valid and object.type and object.type == "obj_AI_Minion" then
 			if object.team ~= myHero.team then
 				if object.charName:find("Minion") then
-					self.Minions[#self.Minions+1] = object
+					self.Minions[object.networkID] = object
 				else
-					self.JungleMinions[#self.JungleMinions+1] = object
+					self.JungleMinions[object.networkID] = object
 				end
 			else
 				if object.charName:find("Minion") then
-					self.AllyForces[#self.AllyForces+1] = object 
+					self.AllyForces[object.networkID] = object 
 				end
 			end
 		elseif object and object.valid and object.health and object.health > 1 and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") and object.team ~= myHero.team then
@@ -375,13 +523,13 @@ function TargetSelector:__init()
 		if object and object.valid and object.type and object.type == "obj_AI_Minion" then
 			if object.team ~= myHero.team then
 				if object.charName:find("Minion") then
-					self.Minions[#self.Minions+1] = object
+					self.Minions[object.networkID] = object
 				else
-					self.JungleMinions[#self.JungleMinions+1] = object
+					self.JungleMinions[object.networkID] = object
 				end
 			else
 				if object.charName:find("Minion") then
-					self.AllyForces[#self.AllyForces+1] = object 
+					self.AllyForces[object.networkID] = object 
 				end
 			end
 		elseif object and object.valid and object.health and object.health > 1 and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") and object.team ~= myHero.team then
@@ -390,39 +538,24 @@ function TargetSelector:__init()
 	end)
 
 	AddDeleteObjCallback(function (object)
-		local a = {}
-		for _,v in pairs(GetAllyHeroes()) do
-			a[#a+1] = v
+		if object.networkID then
+			self.AllyForces[object.networkID] = nil
+			self.Minions[object.networkID] = nil
+			self.JungleMinions[object.networkID] = nil
 		end
-		local m = {}
-		local j = {}
-		local s = {}
-		for _, v in pairs(self.AllyForces) do
-			if v.networkID ~= object.networkID then
-				a[#a+1] = v
+		if object and object.type and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") then
+			local stucts = {}
+			for _,v in ipairs(self.Structures) do
+				if v.x ~= object.x or v.z ~= object.z then
+					stucts[#stucts+1] = v
+				end
 			end
+			self.Structures = stucts
 		end
-		for _, v in pairs(self.Minions) do
-			if v.networkID ~= object.networkID then
-				m[#m+1] = v
-			end
-		end
-		for _, v in pairs(self.JungleMinions) do
-			if v.networkID ~= object.networkID then
-				j[#j+1] = v
-			end
-		end
-		for _, v in pairs(self.Structures) do
-			if v.networkID ~= object.networkID then
-				s[#s+1] = v
-			end
-		end
-		self.AllyForces = a
-		self.Minions = m
-		self.JungleMinions = j
-		self.Structures = s
+
 	end)
 end
+
 
 function TargetSelector:IsUnderTower(target,range)
 	local tower = nil
@@ -462,7 +595,7 @@ end
 
 function TargetSelector:GetEnemyHero(range)
 	local t = nil
-	for _, v in pairs(self.enemyHeroes) do
+	for _, v in pairs(GetEnemyHeroes()) do
 		if v and ValidTarget(v) and GetDistance(v) < range+v.boundingRadius then
 			if t and v.health < t.health then
 				t = v
@@ -536,6 +669,16 @@ function TargetSelector:GetAllTargets(range)
 	end
 
 	return n
+end
+
+function TargetSelector:GetEnemyHeroesInRange(range)
+	local inrange = {}
+	for _,v in ipairs(GetEnemyHeroes()) do
+		if v and GetDistance(v) < range+v.boundingRadius then
+			inrange[#inrange+1] = v
+		end
+	end
+	return inrange
 end
 
 function OnLoad()
