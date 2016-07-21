@@ -72,6 +72,9 @@ function Core:__init()
 	if not champions[myHero.charName] then return end
 	self.TargetSelector = TargetSelector()
 	self:menu()
+
+	self.OrbWalkerManager = OrbWalkerManager(self.Menu, self.TargetSelector)
+
 	self.ItemManager = ItemManager(self.Menu)
 	AddDrawCallback(function ()
 		self:draw()
@@ -80,6 +83,7 @@ function Core:__init()
 		self:smite()
 	end)
 	self:loadchamp()
+	
 end
 
 function Core:update()
@@ -88,14 +92,16 @@ function Core:update()
 	local ServerPath = "/JungleBundle/"
 	local ServerFileName = "JungleBundle.lua"
 	local ServerVersionFileName = "JungleBundle.version"
-	local ServerVersionRaw = GetAsnyWebResult("s1mplescripts.de", ServerPath..ServerVersionFileName)
+	local ServerVersionRaw = GetWebResult("s1mplescripts.de", ServerPath..ServerVersionFileName)
 	if ServerVersionRaw then
 		local ServerVersion = tonumber(ServerVersionRaw)
-		if ServerVersion and ServerVersion > tonumber(self.version) then
-			printC("Updating from "..self.version.." ==> "..ServerVersion)
-			self.DL:newDL(UpdateHost,ServerPath..ServerFileName, GetCurrentEnv().FILE_NAME, SCRIPT_PATH, function ()
-				printC("JungleBundle updated, please reload")
-			end)
+		if ServerVersion then
+			if ServerVersion > tonumber(self.version) then
+				printC("Updating from "..self.version.." ==> "..ServerVersion)
+				self.DL:newDL(UpdateHost,ServerPath..ServerFileName, GetCurrentEnv().FILE_NAME, SCRIPT_PATH, function ()
+					printC("JungleBundle updated, please reload")
+				end)
+			end
 		else
 			printC("An error occured while updating, please reload")
 		end
@@ -107,7 +113,7 @@ end
 
 function Core:loadchamp()
 	if (champions[myHero.charName] and _ENV["_" .. myHero.charName]) then
-		self.champion = _ENV["_" .. myHero.charName](self.Menu, self.TargetSelector)
+		self.champion = _ENV["_" .. myHero.charName](self.Menu, self.TargetSelector, self.OrbWalkerManager)
 		printC("Loading "..myHero.charName)
 		return true
 	else
@@ -120,11 +126,7 @@ function Core:menu()
 	self.Menu = scriptConfig("Jungle Bundle", "Menu")
 
 	self.Menu:addSubMenu("Key Settings", "KeySettings")
-		self.Menu.KeySettings:addParam("comboON", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte(" "))
-		self.Menu.KeySettings:addParam("JungleClearON", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
-		self.Menu.KeySettings:addParam("WaveClearON", "Wave Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
-		self.Menu.KeySettings:addParam("HarrassON", "Harrass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
-		self.Menu.KeySettings:addParam("LastHitON", "Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
+		self.Menu.KeySettings:addParam("loading", "Please wait while the OrbWalker is loading",5,"")
 			
 	self.Menu:addSubMenu("Humanizer", "HumanizerSettings")
 		self.Menu.HumanizerSettings:addParam("SmiteHumanizerON", "Humanizer for Smite", SCRIPT_PARAM_ONOFF, true)
@@ -168,16 +170,7 @@ function Core:draw()
 		DrawCircle3D(myHero.x,myHero.y,myHero.z,myHero.range+myHero.boundingRadius,1,ARGB(255,0,255,0),15)
 	end
 	if self.Menu.DrawSettings.DrawTargetON then
-		local target = nil
-		if self.Menu.KeySettings.comboON or self.Menu.KeySettings.HarrassON then
-			target = self.TargetSelector:GetEnemyHero(myHero.range + myHero.boundingRadius)
-		end
-		if self.Menu.KeySettings.JungleClearON and self.TargetSelector:GetJungleMinion(myHero.range + myHero.boundingRadius) ~= nil then
-			target = self.TargetSelector:GetJungleMinion(myHero.range + myHero.boundingRadius)
-		end
-		if not target and self.Menu.KeySettings.WaveClearON and self.TargetSelector:GetEnemyMinion(myHero.range + myHero.boundingRadius) ~= nil then
-			target = self.TargetSelector:GetEnemyMinion(myHero.range + myHero.boundingRadius)
-		end
+		target = self.OrbWalkerManager:GetTarget()
 		if target then
 			DrawCircle3D(target.x,target.y,target.z,25,3,ARGB(255,255,0,0),8)
 		end
@@ -328,16 +321,23 @@ function CastSpellHumanized(menu, slot, target, posX, posY)
 end
 
 Class("_Evelynn")
-function _Evelynn:__init(menu, TargetSelector)
+function _Evelynn:__init(menu, TargetSelector, OrbWalkerManager)
 	self.menu = menu
 	self.TargetSelector = TargetSelector
+	self.OrbWalkerManager = OrbWalkerManager
 	self:Menu()
 	self:SetupUPL()
 	AddTickCallback(function ()
-		self:jc()
-		self:lc()
-		self:h()
-		self:c()
+		local mode = OrbWalkerManager:GetOrbMode()
+		if mode == 1 then
+			self:h()
+		elseif mode == 2 then
+			self:lc()
+		elseif mode == 4 then
+			self:c()
+		elseif mode == 5 then
+			self:jc()
+		end
 	end)
 	AddApplyBuffCallback(function (src, target, buff)
 		self:applybuff(src, target, buff)
@@ -381,7 +381,6 @@ function _Evelynn:SetupUPL()
 end
 
 function _Evelynn:jc()
-	if not self.menu.KeySettings.JungleClearON then return end
 	if self.menu.Evelynn.jc.UseQ and myHero:CanUseSpell(_Q) == 0 then
 		target = self.TargetSelector:GetJungleMinion(500)
 		if target then
@@ -397,7 +396,6 @@ function _Evelynn:jc()
 end
 
 function _Evelynn:lc()
-	if not self.menu.KeySettings.WaveClearON then return end
 	if self.menu.Evelynn.lc.UseQ and myHero:CanUseSpell(_Q) == 0 then
 		target = self.TargetSelector:GetEnemyMinion(500)
 		if target then
@@ -413,7 +411,6 @@ function _Evelynn:lc()
 end
 
 function _Evelynn:h()
-	if not self.menu.KeySettings.HarrassON then return end
 	if self.menu.Evelynn.h.UseQ and myHero:CanUseSpell(_Q) == 0 then
 		target = self.TargetSelector:GetEnemyHero(500)
 		if target then
@@ -429,7 +426,6 @@ function _Evelynn:h()
 end
 
 function _Evelynn:c()
-	if not self.menu.KeySettings.comboON then return end
 	if self.menu.Evelynn.c.UseQ and myHero:CanUseSpell(_Q) == 0 then
 		target = self.TargetSelector:GetEnemyHero(500)
 		if target then
@@ -847,6 +843,209 @@ function Download:RemoveDone()
 	self.aktivedownloads = {}
 	self.aktivedownloads = x
 end
+
+
+class("OrbWalkerManager")
+function OrbWalkerManager:__init(menu, ts)
+	self.Menu = menu
+	self.TargetSelector = ts
+	self.LoadedOrbWalker = "NONE"
+	self.tries = 0
+	self:getloadedorbwalker()
+
+	AddDrawCallback(function ()
+		self:draw()
+	end)
+end
+
+function OrbWalkerManager:getloadedorbwalker()
+	if _G.S1OrbLoading or _G.S1mpleOrbLoaded then self.LoadedOrbWalker = "S1Orb" end
+	if _G.Reborn_Loaded or _G.AutoCarry then self.LoadedOrbWalker = "SAC:R" end
+	if SAC then self.LoadedOrbWalker = "SAC:P" end
+	if _G.MMA_Loaded or _G.MMA_Version then self.LoadedOrbWalker = "MMA" end
+	if _G.NebelwolfisOrbWalkerInit or _G.NebelwolfisOrbWalkerLoaded then self.LoadedOrbWalker = "NOW" end
+	if _Pewalk then self.LoadedOrbWalker = "PEW" end
+	if _G.SxOrb or SxOrb then self.LoadedOrbWalker = "SxOrb" end
+	if _G["BigFatOrb_Loaded"] then self.LoadedOrbWalker = "BFW" end
+
+	if self.LoadedOrbWalker == "NONE" then
+		if self.tries < 10 then
+			self.tries = self.tries+1
+			DelayAction(function ()
+				self:getloadedorbwalker()
+			end,1)
+		else
+			self.LoadedOrbWalker = "KEYS"
+			self.Menu.KeySettings:addParam("comboON", "Combo", SCRIPT_PARAM_ONKEYDOWN, false, string.byte(" "))
+			self.Menu.KeySettings:addParam("JungleClearON", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
+			self.Menu.KeySettings:addParam("WaveClearON", "Wave Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
+			self.Menu.KeySettings:addParam("HarrassON", "Harrass", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("C"))
+			self.Menu.KeySettings:addParam("LastHitON", "Last Hit", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("X"))
+			self.Menu.KeySettings:removeParam("loading")
+		end
+	else
+		self.Menu.KeySettings:removeParam("loading")
+		self.Menu.KeySettings:addParam("bindtowalker","Your Keys are bound to your OrbWalkers Keys", 5)
+		self.Menu.KeySettings:addParam("JungleClearON", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
+	end
+end
+
+function OrbWalkerManager:draw()
+	local modetbl = {
+		[0] = "None",
+		[1] = "Harass",
+		[2] = "Laneclear",
+		[3] = "Lasthit",
+		[4] = "SBTW",
+		[5] = "JungleClear"
+	}
+	DrawTextA("Loaded Walker: "..self.LoadedOrbWalker,12,20,20)
+	if self:GetOrbMode() then
+		DrawTextA("Current Mode: "..modetbl[self:GetOrbMode()],12,20,40)
+	end
+	if self:GetTarget() then
+		DrawTextA("Current Target: "..self:GetTarget().charName,12,20,60)
+	end
+end
+
+function OrbWalkerManager:GetOrbMode()
+	--[[
+		0: None
+		1: Harass
+		2: Laneclear
+		3: Lasthit
+		4: SBTW
+		5: JungleClear
+	]]
+	if self.LoadedOrbWalker == "NONE" then
+		return 0
+	elseif self.LoadedOrbWalker == "KEYS" then
+		if self.Menu.KeySettings.HarrassON then return 1 end
+		if self.Menu.KeySettings.WaveClearON then return 2 end
+		if self.Menu.KeySettings.LastHitON then return 3 end
+		if self.Menu.KeySettings.comboON then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "S1Orb" then
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "none" then return 0 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "harass" then return 1 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "laneclear" then return 2 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "lasthit" then return 3 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "sbtw" then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "SAC:R" then
+		if not _G.AutoCarry then return 0 end
+		if _G.AutoCarry.Keys.MixedMode then return 1 end
+		if _G.AutoCarry.Keys.LaneClear then return 2 end
+		if _G.AutoCarry.Keys.LastHit then return 3 end
+		if _G.AutoCarry.Keys.AutoCarry then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "SAC:P" then
+		if SAC:GetActiveMode() == "MixedMode" then return 1 end
+		if SAC:GetActiveMode() == "Laneclear" then return 2 end
+		if SAC:GetActiveMode() == "LastHit" then return 3 end
+		if SAC:GetActiveMode() == "AutoCarry" then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end		
+		return 0
+	elseif self.LoadedOrbWalker == "MMA" then
+		if _G.MMA_IsDualCarrying() then return 1 end
+		if _G.MMA_IsLaneClearing() then return 2 end
+		if _G.MMA_IsLastHitting() then return 3 end
+		if _G.MMA_IsOrbwalking() then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "NOW" then
+		if not _G.NebelwolfisOrbWalker then return 0 end
+		if _G.NebelwolfisOrbWalker.Config.k.Harass then return 1 end
+		if _G.NebelwolfisOrbWalker.Config.k.LaneClear then return 2 end
+		if _G.NebelwolfisOrbWalker.Config.k.LastHit then return 3 end
+		if _G.NebelwolfisOrbWalker.Config.k.Combo then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "PEW" then
+		if not _Pewalk then return 0 end
+		if _Pewalk.GetActiveMode().Mixed then return 1 end
+		if _Pewalk.GetActiveMode().LaneClear then return 2 end
+		if _Pewalk.GetActiveMode().Farm then return 3 end
+		if _Pewalk.GetActiveMode().Carry then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "SxOrb" then
+		if not _G.SxOrb then return end
+		if _G.SxOrb.isHarass or SxOrb.isHarass then return 1 end
+		if _G.SxOrb.isLaneClear or SxOrb.isLaneClear then return 2 end
+		if _G.SxOrb.isLastHit or SxOrb.isLastHit then return 3 end
+		if _G.SxOrb.isFight or SxOrb.isFight then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	elseif self.LoadedOrbWalker == "BFW" then
+		if _G["BigFatOrb_Mode"] == "Harass" then return 1 end
+		if _G["BigFatOrb_Mode"] == "LaneClear" then return 2 end
+		if _G["BigFatOrb_Mode"] == "LastHit" then return 3 end
+		if _G["BigFatOrb_Mode"] == "Combo" then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
+		return 0
+	end
+end
+
+function OrbWalkerManager:GetTarget()
+	if self.LoadedOrbWalker == "NONE" then
+		return nil
+	elseif self.LoadedOrbWalker == "KEYS" then
+		local currentMode = self:GetOrbMode()
+		if currentMode == 0 then return nil end
+		local range = myHero.range + myHero.boundingRadius
+		if currentMode == 1 then
+			local target = self.TargetSelector:GetEnemyHero(range)
+			if not target then target = self.TargetSelector:GetEnemyMinion(range) end
+			return target
+		elseif currentMode == 2 then
+			return self.TargetSelector:GetEnemyMinion(range)
+		elseif currentMode == 3 then
+			return self.TargetSelector:GetEnemyMinion(range)
+		elseif currentMode == 4 then
+			return self.TargetSelector:GetEnemyHero(range)
+		elseif currentMode == 5 then
+			return self.TargetSelector:GetJungleMinion(range)
+		end
+	elseif self.LoadedOrbWalker == "S1Orb" then
+		return (_G.S1mpleOrbLoaded and _G.S1:GetTarget() or nil)
+	elseif self.LoadedOrbWalker == "SAC:R" and _G.AutoCarry and _G.AutoCarry.SkillsCrosshair then
+		return _G.AutoCarry.SkillsCrosshair.target
+	elseif self.LoadedOrbWalker == "SAC:P" then
+		return SAC:GetTarget()
+	elseif self.LoadedOrbWalker == "MMA" then
+		return _G.MMA_GetTarget()
+	elseif self.LoadedOrbWalker == "NOW" then
+		return _G.NebelwolfisOrbWalker:GetTarget()
+	elseif self.LoadedOrbWalker == "PEW" then
+		return _Pewalk.GetTarget()
+	elseif self.LoadedOrbWalker == "SxOrb" then
+		return _G.SxOrb:GetTarget()
+	elseif self.LoadedOrbWalker == "BFW" then
+		--[[NO PUBLIC API]]
+		local currentMode = self:GetOrbMode()
+		if currentMode == 0 then return nil end
+		local range = myHero.range + myHero.boundingRadius
+		if currentMode == 1 then
+			local target = self.TargetSelector:GetEnemyHero(range)
+			if not target then target = self.TargetSelector:GetEnemyMinion(range) end
+			return target
+		elseif currentMode == 2 then
+			return self.TargetSelector:GetEnemyMinion(range)
+		elseif currentMode == 3 then
+			return self.TargetSelector:GetEnemyMinion(range)
+		elseif currentMode == 4 then
+			return self.TargetSelector:GetEnemyHero(range)
+		elseif currentMode == 5 then
+			return self.TargetSelector:GetJungleMinion(range)
+		end
+	end
+	return nil
+end
+
 
 function OnLoad()
 	Core = Core()
