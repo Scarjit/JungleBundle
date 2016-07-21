@@ -74,6 +74,7 @@ function Core:__init()
 	self:menu()
 
 	self.OrbWalkerManager = OrbWalkerManager(self.Menu, self.TargetSelector)
+
 	self.ItemManager = ItemManager(self.Menu)
 	AddDrawCallback(function ()
 		self:draw()
@@ -82,6 +83,7 @@ function Core:__init()
 		self:smite()
 	end)
 	self:loadchamp()
+	
 end
 
 function Core:update()
@@ -168,7 +170,7 @@ function Core:draw()
 		DrawCircle3D(myHero.x,myHero.y,myHero.z,myHero.range+myHero.boundingRadius,1,ARGB(255,0,255,0),15)
 	end
 	if self.Menu.DrawSettings.DrawTargetON then
-		target = OrbWalkerManager:GetTarget()
+		target = self.OrbWalkerManager:GetTarget()
 		if target then
 			DrawCircle3D(target.x,target.y,target.z,25,3,ARGB(255,255,0,0),8)
 		end
@@ -859,7 +861,7 @@ end
 function OrbWalkerManager:getloadedorbwalker()
 	if _G.S1OrbLoading or _G.S1mpleOrbLoaded then self.LoadedOrbWalker = "S1Orb" end
 	if _G.Reborn_Loaded or _G.AutoCarry then self.LoadedOrbWalker = "SAC:R" end
-	if SAC then LoadedOrbWalker = "SAC:P" end
+	if SAC then self.LoadedOrbWalker = "SAC:P" end
 	if _G.MMA_Loaded or _G.MMA_Version then self.LoadedOrbWalker = "MMA" end
 	if _G.NebelwolfisOrbWalkerInit or _G.NebelwolfisOrbWalkerLoaded then self.LoadedOrbWalker = "NOW" end
 	if _Pewalk then self.LoadedOrbWalker = "PEW" end
@@ -883,7 +885,7 @@ function OrbWalkerManager:getloadedorbwalker()
 		end
 	else
 		self.Menu.KeySettings:removeParam("loading")
-		self.Menu.KeySettings:addParam("bindtowalker","Your Keys are bound to your OrbWalkers Keys")
+		self.Menu.KeySettings:addParam("bindtowalker","Your Keys are bound to your OrbWalkers Keys", 5)
 		self.Menu.KeySettings:addParam("JungleClearON", "Jungle Clear", SCRIPT_PARAM_ONKEYDOWN, false, string.byte("V"))
 	end
 end
@@ -899,6 +901,9 @@ function OrbWalkerManager:draw()
 	}
 	DrawTextA("Loaded Walker: "..self.LoadedOrbWalker,12,20,20)
 	DrawTextA("Current Mode: "..modetbl[self:GetOrbMode()],12,20,40)
+	if self:GetTarget() then
+		DrawTextA("Current Target: "..self:GetTarget().charName,12,20,60)
+	end
 end
 
 function OrbWalkerManager:GetOrbMode()
@@ -910,15 +915,14 @@ function OrbWalkerManager:GetOrbMode()
 		4: SBTW
 		5: JungleClear
 	]]
-
 	if self.LoadedOrbWalker == "NONE" then
 		return 0
 	elseif self.LoadedOrbWalker == "KEYS" then
-		if self.Menu.KeySettings.HarrassON then return 1
-		if self.Menu.KeySettings.WaveClearON then return 2
-		if self.Menu.KeySettings.LastHitON then return 3
-		if self.Menu.KeySettings.comboON then return 4
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.HarrassON then return 1 end
+		if self.Menu.KeySettings.WaveClearON then return 2 end
+		if self.Menu.KeySettings.LastHitON then return 3 end
+		if self.Menu.KeySettings.comboON then return 4 end
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "S1Orb" then
 		if _G.S1.aamode == "none" then return 0 end
@@ -926,7 +930,7 @@ function OrbWalkerManager:GetOrbMode()
 		if _G.S1.aamode == "laneclear" then return 2 end
 		if _G.S1.aamode == "lasthit" then return 3 end
 		if _G.S1.aamode == "sbtw" then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return -1
 	elseif self.LoadedOrbWalker == "SAC:R" then
 		if not _G.AutoCarry then return 0 end
@@ -934,21 +938,21 @@ function OrbWalkerManager:GetOrbMode()
 		if _G.AutoCarry.Keys.LaneClear then return 2 end
 		if _G.AutoCarry.Keys.LastHit then return 3 end
 		if _G.AutoCarry.Keys.AutoCarry then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "SAC:P" then
 		if SAC:GetActiveMode() == "MixedMode" then return 1 end
 		if SAC:GetActiveMode() == "Laneclear" then return 2 end
 		if SAC:GetActiveMode() == "LastHit" then return 3 end
 		if SAC:GetActiveMode() == "AutoCarry" then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5		
+		if self.Menu.KeySettings.JungleClearON then return 5 end		
 		return 0
 	elseif self.LoadedOrbWalker == "MMA" then
 		if _G.MMA_IsDualCarrying() then return 1 end
 		if _G.MMA_IsLaneClearing() then return 2 end
 		if _G.MMA_IsLastHitting() then return 3 end
 		if _G.MMA_IsOrbwalking() then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "NOW" then
 		if not _G.NebelwolfisOrbWalker then return 0 end
@@ -956,7 +960,7 @@ function OrbWalkerManager:GetOrbMode()
 		if _G.NebelwolfisOrbWalker.Config.k.LaneClear then return 2 end
 		if _G.NebelwolfisOrbWalker.Config.k.LastHit then return 3 end
 		if _G.NebelwolfisOrbWalker.Config.k.Combo then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "PEW" then
 		if not _Pewalk then return 0 end
@@ -964,7 +968,7 @@ function OrbWalkerManager:GetOrbMode()
 		if _Pewalk.GetActiveMode().LaneClear then return 2 end
 		if _Pewalk.GetActiveMode().Farm then return 3 end
 		if _Pewalk.GetActiveMode().Carry then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "SxOrb" then
 		if not _G.SxOrb then return end
@@ -972,26 +976,26 @@ function OrbWalkerManager:GetOrbMode()
 		if _G.SxOrb.isLaneClear or SxOrb.isLaneClear then return 2 end
 		if _G.SxOrb.isLastHit or SxOrb.isLastHit then return 3 end
 		if _G.SxOrb.isFight or SxOrb.isFight then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "BFW" then
 		if _G["BigFatOrb_Mode"] == "Harass" then return 1 end
 		if _G["BigFatOrb_Mode"] == "LaneClear" then return 2 end
 		if _G["BigFatOrb_Mode"] == "LastHit" then return 3 end
 		if _G["BigFatOrb_Mode"] == "Combo" then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	end
 end
 
 function OrbWalkerManager:GetTarget()
-	if currentMode == 0 then return nil end
 	if self.LoadedOrbWalker == "NONE" then
 		return nil
 	elseif self.LoadedOrbWalker == "KEYS" then
 		local currentMode = self:GetOrbMode()
+		if currentMode == 0 then return nil end
 		local range = myHero.range + myHero.boundingRadius
-		if currentMode == 1
+		if currentMode == 1 then
 			local target = self.TargetSelector:GetEnemyHero(range)
 			if not target then target = self.TargetSelector:GetEnemyMinion(range) end
 			return target
@@ -1006,7 +1010,7 @@ function OrbWalkerManager:GetTarget()
 		end
 	elseif self.LoadedOrbWalker == "S1Orb" then
 		return _G.S1:GetTarget()
-	elseif self.LoadedOrbWalker == "SAC:R" then
+	elseif self.LoadedOrbWalker == "SAC:R" and _G.AutoCarry and _G.AutoCarry.SkillsCrosshair then
 		return _G.AutoCarry.SkillsCrosshair.target
 	elseif self.LoadedOrbWalker == "SAC:P" then
 		return SAC:GetTarget()
@@ -1021,6 +1025,7 @@ function OrbWalkerManager:GetTarget()
 	elseif self.LoadedOrbWalker == "BFW" then
 		return Orbwalk_GetTarget()
 	end
+	return nil
 end
 
 
