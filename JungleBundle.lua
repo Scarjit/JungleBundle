@@ -900,7 +900,9 @@ function OrbWalkerManager:draw()
 		[5] = "JungleClear"
 	}
 	DrawTextA("Loaded Walker: "..self.LoadedOrbWalker,12,20,20)
-	DrawTextA("Current Mode: "..modetbl[self:GetOrbMode()],12,20,40)
+	if self:GetOrbMode() then
+		DrawTextA("Current Mode: "..modetbl[self:GetOrbMode()],12,20,40)
+	end
 	if self:GetTarget() then
 		DrawTextA("Current Target: "..self:GetTarget().charName,12,20,60)
 	end
@@ -925,13 +927,13 @@ function OrbWalkerManager:GetOrbMode()
 		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "S1Orb" then
-		if _G.S1.aamode == "none" then return 0 end
-		if _G.S1.aamode == "harass" then return 1 end
-		if _G.S1.aamode == "laneclear" then return 2 end
-		if _G.S1.aamode == "lasthit" then return 3 end
-		if _G.S1.aamode == "sbtw" then return 4 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "none" then return 0 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "harass" then return 1 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "laneclear" then return 2 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "lasthit" then return 3 end
+		if _G.S1mpleOrbLoaded and _G.S1.aamode == "sbtw" then return 4 end
 		if self.Menu.KeySettings.JungleClearON then return 5 end
-		return -1
+		return 0
 	elseif self.LoadedOrbWalker == "SAC:R" then
 		if not _G.AutoCarry then return 0 end
 		if _G.AutoCarry.Keys.MixedMode then return 1 end
@@ -1009,7 +1011,7 @@ function OrbWalkerManager:GetTarget()
 			return self.TargetSelector:GetJungleMinion(range)
 		end
 	elseif self.LoadedOrbWalker == "S1Orb" then
-		return _G.S1:GetTarget()
+		return (_G.S1mpleOrbLoaded and _G.S1:GetTarget() or nil)
 	elseif self.LoadedOrbWalker == "SAC:R" and _G.AutoCarry and _G.AutoCarry.SkillsCrosshair then
 		return _G.AutoCarry.SkillsCrosshair.target
 	elseif self.LoadedOrbWalker == "SAC:P" then
@@ -1019,11 +1021,27 @@ function OrbWalkerManager:GetTarget()
 	elseif self.LoadedOrbWalker == "NOW" then
 		return _G.NebelwolfisOrbWalker:GetTarget()
 	elseif self.LoadedOrbWalker == "PEW" then
-		return _Pewalk.GetTarget
+		return _Pewalk.GetTarget()
 	elseif self.LoadedOrbWalker == "SxOrb" then
 		return _G.SxOrb:GetTarget()
 	elseif self.LoadedOrbWalker == "BFW" then
-		return Orbwalk_GetTarget()
+		--[[NO PUBLIC API]]
+		local currentMode = self:GetOrbMode()
+		if currentMode == 0 then return nil end
+		local range = myHero.range + myHero.boundingRadius
+		if currentMode == 1 then
+			local target = self.TargetSelector:GetEnemyHero(range)
+			if not target then target = self.TargetSelector:GetEnemyMinion(range) end
+			return target
+		elseif currentMode == 2 then
+			return self.TargetSelector:GetEnemyMinion(range)
+		elseif currentMode == 3 then
+			return self.TargetSelector:GetEnemyMinion(range)
+		elseif currentMode == 4 then
+			return self.TargetSelector:GetEnemyHero(range)
+		elseif currentMode == 5 then
+			return self.TargetSelector:GetJungleMinion(range)
+		end
 	end
 	return nil
 end
