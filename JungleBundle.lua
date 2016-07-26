@@ -254,18 +254,16 @@ Esceduled = false
 Rsceduled = false
 function CastSpellHumanized(menu, slot, target, posX, posY)
 	if myHero:CanUseSpell(slot) ~= 0 then return end
-	if slot == _Q then
-		if Qsceduled then return end
+	if slot == _Q and not Qsceduled then
 		Qsceduled = true
-	elseif slot == _W then
-		if Wsceduled then return end
+	elseif slot == _W and not Wsceduled then
 		Wsceduled = true
-	elseif slot == _E then
-		if Esceduled then return end
+	elseif slot == _E and not Esceduled then
 		Esceduled = true
-	else
-		if Rsceduled then return end
+	elseif slot == _R and not Rsceduled then
 		Rsceduled = true
+	else
+		return end
 	end
 	if menu.HumanizerSettings.SpellsHumanizerON then
 		SpellHumanizer = math.random(menu.HumanizerSettings.SpellsHumanizerMinValue/1000, menu.HumanizerSettings.SpellsHumanizerMaxValue/1000)
@@ -469,42 +467,72 @@ Class("_Hecarim")
 function _Hecarim:__init()
 	
 end
+
 Class("_Maokai")
 function _Maokai:__init()
 	
 end
+
 Class("_Nocturne")
-function _Nocturne:__init()
+function _Nocturne:__init(menu, TargetSelector, OrbWalkerManager)
+	self.menu = menu
+	self.TargetSelector = TargetSelector
+	self.OrbWalkerManager = OrbWalkerManager
+	self:Menu()
+	self:SetupUPL()
+end
+
+function _Nocturne:Menu()
+	self.addSubMenu("Nocturne", "Nocturne")
+		self.menu.Nocturne:addSubMenu("Jungle Clear", "jc")
+
+		self.menu.Nocturne:addSubMenu("Lance Clear", "lc")
+
+		self.menu.Nocturne:addSubMenu("Harrass", "h")
+
+		self.menu.Nocturne:addSubMenu("Combo", "c")
+		
+end
+
+function _Nocturne:SetupUPL()
 	
 end
+
 Class("_Nunu")
 function _Nunu:__init()
 	
 end
+
 Class("_Rammus")
 function _Rammus:__init()
 	
 end
+
 Class("_RekSai")
 function _RekSai:__init()
 	
 end
+
 Class("_Shyvana")
 function _Shyvana:__init()
 	
 end
+
 Class("_Skarner")
 function _Skarner:__init()
 	
 end
+
 Class("_Trundle")
 function _Trundle:__init()
 	
 end
+
 Class("_Vi")
 function _Vi:__init()
 	
 end
+
 Class("_Zac")
 function _Zac:__init()
 	
