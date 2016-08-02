@@ -229,7 +229,7 @@ end
  |_____|\__\___|_| |_| |_|_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|   
                                                     __/ |          
                                                    |___/           
-]]
+]]--
 Class("ItemManager")
 function ItemManager:__init(menu)
 	self.Menu = menu
@@ -1309,22 +1309,157 @@ function _Nocturne:__init(menu, TargetSelector, OrbWalkerManager)
 	self.OrbWalkerManager = OrbWalkerManager
 	self:Menu()
 	self:SetupUPL()
+	AddTickCallback(function ()
+		local mode = OrbWalkerManager:GetOrbMode()
+		if mode == 1 then
+			self:h()
+		elseif mode == 2 then
+			self:lc()
+		elseif mode == 4 then
+			self:c()
+		elseif mode == 5 then
+			self:jc()
+		end
+	end)
+	AddProcessSpellCallback(function (object, spell)
+		self:processpell(object, spell)
+	end)
 end
 
 function _Nocturne:Menu()
 	self.addSubMenu("Nocturne", "Nocturne")
 		self.menu.Nocturne:addSubMenu("Jungle Clear", "jc")
-
+			self.menu.Nocturne.jc:addParam("UseQ", "Use Duskbringer (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.jc:addParam("UseE", "Use Unspeakable Horror (E)", SCRIPT_PARAM_ONOFF, false)
 		self.menu.Nocturne:addSubMenu("Lance Clear", "lc")
-
+			self.menu.Nocturne.lc:addParam("UseQ", "Use Duskbringer (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.lc:addParam("UseE", "Use Unspeakable Horror (E)", SCRIPT_PARAM_ONOFF, false)
 		self.menu.Nocturne:addSubMenu("Harrass", "h")
-
+			self.menu.Nocturne.h:addParam("UseQ", "Use Duskbringer (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.h:addParam("UseW", "Use Shroud of Darkness (W)", SCRIPT_PARAM_ONOFF, true)
 		self.menu.Nocturne:addSubMenu("Combo", "c")
-		
+			self.menu.Nocturne.c:addParam("UseQ", "Use Duskbringer (Q)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.c:addParam("UseW", "Use Shroud of Darkness (W)", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.c:addParam("UseR", "Use Paranoia (R)", SCRIPT_PARAM_ONOFF, true)
+		self.menu.Nocturne:addSubMenu("Paranoia (R)", "rsettings")
+			self.menu.Nocturne.rsettings:addParam("only_killable", "Only Cast on Killable", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.rsettings:addParam("tower_dive", "Tower Dive", SCRIPT_PARAM_ONOFF, false)
+			self.menu.Nocturne.rsettings:addParam("isolated", "Only lone Enemies", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.rsettings:addParam("minhp_self", "Min Own HP % to engage", SCRIPT_PARAM_SLICE, 5,0,100,1)
+		self.menu.Nocturne:addSubMenu("Shroud of Darkness (W)", "wsettings")
+			self.menu.Nocturne.wsettings:addParam("enable_spellblock", "Enable Spellblock", SCRIPT_PARAM_ONOFF, true)
+			self.menu.Nocturne.wsettings:addParam("block_hp", "Only Block unser % HP", SCRIPT_PARAM_SLICE, 70,0,100,0)
+			self.menu.Nocturne.wsettings:addParam("note1", "Auto Spellblock will only Trigger for Targeted Spells", 5,"")
 end
 
 function _Nocturne:SetupUPL()
-	
+	UPL:AddToMenu(self.menu)
+	UPL:AddSpell(_Q, {speed = 1400, delay = 0.25, range = 1200, width = 125, collision = false, aoe = true, type="linear"}) --TODO
+end
+
+function _Nocturne:jc()
+	if self.menu.Nocturne.jc.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetJungleMinion(1200)
+		if target then
+			CastPosition, HitChance, _ = UPL:Predict(_R, myHero,target)
+			if CastPosition and HitChance > 0 then
+				CastSpellHumanized(self.menu, _Q, nil, CastPosition.x, CastPosition.z)
+			end
+		end
+	end
+	if self.menu.Nocturne.jc.UseE and myHero:CanUseSpell(E) == 0 then
+		target = self.TargetSelector:GetJungleMinion(425)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
+end
+
+function _Nocturne:lc()
+	if self.menu.Nocturne.lc.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetEnemyMinion(1200)
+		if target then
+			CastPosition, HitChance, _ = UPL:Predict(_R, myHero,target)
+			if CastPosition and HitChance > 0 then
+				CastSpellHumanized(self.menu, _Q, nil, CastPosition.x, CastPosition.z)
+			end
+		end
+	end
+	if self.menu.Nocturne.lc.UseE and myHero:CanUseSpell(E) == 0 then
+		target = self.TargetSelector:GetEnemyMinion(425)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
+end
+
+function _Nocturne:h()
+	if self.menu.Nocturne.lc.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetEnemyHero(1200)
+		if target then
+			CastPosition, HitChance, _ = UPL:Predict(_R, myHero,target)
+			if CastPosition and HitChance > 0 then
+				CastSpellHumanized(self.menu, _Q, nil, CastPosition.x, CastPosition.z)
+			end
+		end
+	end
+	if self.menu.Nocturne.lc.UseE and myHero:CanUseSpell(E) == 0 then
+		target = self.TargetSelector:GetEnemyHero(425)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
+end
+
+function _Nocturne:c()
+		if self.menu.Nocturne.c.UseQ and myHero:CanUseSpell(_Q) == 0 then
+		target = self.TargetSelector:GetEnemyHero(1200)
+		if target then
+			CastPosition, HitChance, _ = UPL:Predict(_R, myHero,target)
+			if CastPosition and HitChance > 0 then
+				CastSpellHumanized(self.menu, _Q, nil, CastPosition.x, CastPosition.z)
+			end
+		end
+	end
+	if self.menu.Nocturne.c.UseE and myHero:CanUseSpell(E) == 0 then
+		target = self.TargetSelector:GetEnemyHero(425)
+		if target then
+			CastSpellHumanized(self.menu, _E, target)
+		end
+	end
+
+	if self.menu.Nocturne.c.UseR and myHero:CanUseSpell(_R) == 0 and not self.awaits2ndcast then
+		local target = nil
+		if myHero.health/myHero.maxHealth*100 < self.menu.Nocturne.rsettings.minhp_self then return end
+		for i,v in ipairs(self.TargetSelector:GetEnemyHeroesInRange(1750+(myHero:GetSpellData(_R).level*750)) do
+			if v and v.visible and not v.dead then
+				if (self.menu.Nocturne.rsettings.only_killable and v.health < (50+myHero:GetSpellData(_R).level*100+myHero.addDamage*1.2)) or not self.menu.Nocturne.rsettings.only_killable then
+					if (self.menu.Nocturne.rsettings.isolated and self.TargetSelector:GetEnemyHeroesInRangeAroundChamp(900,v) == 0) or not self.menu.Nocturne.rsettings.isolated then
+						if (not self.menu.Nocturne.rsettings.tower_dive and not self.TargetSelector:IsDangerZone(v)) then
+							if (target and v.health < target.health) or not target then
+								target = v
+							end
+						end
+					end
+				end
+			end
+		end
+		if target then
+			self.awaits2ndcast = true
+			CastSpell(_R)
+			CastSpellHumanized(self.menu,_R,target)
+			DelayAction(function ()
+				self.awaits2ndcast = false
+			end,5)
+		end
+	end
+end
+
+function _Nocturne:processpell(object, spell)
+	if not object or not spell or not myHero:CanUseSpell(_W) == 0 or not spell.target == myHero then return end
+	if self.menu.Nocturne.wsettings.enable_spellblock and myHero.health/myHero.maxHealth*100 <= self.menu.Nocturne.wsettings.block_hp then
+		CastSpellHumanized(self.menu,_W)
+	end
 end
 
 Class("_Nunu")
@@ -1571,6 +1706,16 @@ function TargetSelector:GetEnemyHeroesInRange(range)
 	return inrange
 end
 
+function TargetSelector:GetEnemyHeroesInRangeAroundChamp(range,champ)
+	local inrange = {}
+	for _,v in ipairs(GetEnemyHeroes()) do
+		if v and GetDistance(champ,v) < range+v.boundingRadius and v.networkID ~= champ.networkdID then
+			inrange[#inrange+1] = v
+		end
+	end
+	return inrange
+end
+
 --[[
   _____                      _                 _ 
  |  __ \                    | |               | |
@@ -1580,7 +1725,7 @@ end
  |_____/ \___/ \_/\_/ |_| |_|_|\___/ \__,_|\__,_|
                                                  
 
-]]
+]]--
 
 class("Download")
 function Download:__init()
@@ -1803,7 +1948,7 @@ function OrbWalkerManager:GetOrbMode()
 		3: Lasthit
 		4: SBTW
 		5: JungleClear
-	]]
+	]]--
 	if self.LoadedOrbWalker == "NONE" then
 		return 0
 	elseif self.LoadedOrbWalker == "KEYS" then
