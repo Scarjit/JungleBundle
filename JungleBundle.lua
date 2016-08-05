@@ -1,12 +1,12 @@
 --[[
-       _                   _      ____                  _ _      
-      | |                 | |    |  _ \                | | |     
-      | |_   _ _ __   __ _| | ___| |_) |_   _ _ __   __| | | ___ 
+       _                   _      ____                  _ _
+      | |                 | |    |  _ \                | | |
+      | |_   _ _ __   __ _| | ___| |_) |_   _ _ __   __| | | ___
   _   | | | | | '_ \ / _` | |/ _ \  _ <| | | | '_ \ / _` | |/ _ \
  | |__| | |_| | | | | (_| | |  __/ |_) | |_| | | | | (_| | |  __/
   \____/ \__,_|_| |_|\__, |_|\___|____/ \__,_|_| |_|\__,_|_|\___|
-                      __/ |                                      
-                     |___/     
+                      __/ |
+                     |___/
 
 
      		SCRIPT BY DrPhoenix & S1mple
@@ -16,10 +16,10 @@ Changelog :
 
   BETA
 	0.1 : First release
-	
+
 	More Soon !
-	
-                                  
+
+
 ]]--
 local champions = {
 	["Evelynn"] = true,
@@ -45,9 +45,9 @@ if not _G.UPLloaded then
   if FileExist(LIB_PATH .. "/UPL.lua") then
     require("UPL")
     _G.UPL = UPL()
-  else 
+  else
     print("Downloading UPL, please don't press F9")
-    DelayAction(function() DownloadFile("https://raw.github.com/nebelwolfi/BoL/master/Common/UPL.lua".."?rand="..math.random(1,10000), LIB_PATH.."UPL.lua", function () print("Successfully downloaded UPL. Press F9 twice.") end) end, 3) 
+    DelayAction(function() DownloadFile("https://raw.github.com/nebelwolfi/BoL/master/Common/UPL.lua".."?rand="..math.random(1,10000), LIB_PATH.."UPL.lua", function () print("Successfully downloaded UPL. Press F9 twice.") end) end, 3)
     return
   end
 end
@@ -65,14 +65,14 @@ function Class(name)
 end
 
 --[[
-   _____               
-  / ____|              
- | |     ___  _ __ ___ 
+   _____
+  / ____|
+ | |     ___  _ __ ___
  | |    / _ \| '__/ _ \
  | |___| (_) | | |  __/
   \_____\___/|_|  \___|
-                       
-                       
+
+
 ]]
 
 Class("Core")
@@ -95,7 +95,7 @@ function Core:__init()
 		self:smite()
 	end)
 	self:loadchamp()
-	
+
 end
 
 function Core:update()
@@ -139,7 +139,7 @@ function Core:menu()
 
 	self.Menu:addSubMenu("Key Settings", "KeySettings")
 		self.Menu.KeySettings:addParam("loading", "Please wait while the OrbWalker is loading",5,"")
-			
+
 	self.Menu:addSubMenu("Humanizer", "HumanizerSettings")
 		self.Menu.HumanizerSettings:addParam("SmiteHumanizerON", "Humanizer for Smite", SCRIPT_PARAM_ONOFF, true)
 		self.Menu.HumanizerSettings:addParam("SmiteHumanizerMinValue", "Min Value", SCRIPT_PARAM_SLICE, 100, 0, 1000, 0)
@@ -171,7 +171,7 @@ function Core:menu()
 		self.Menu.MiscSettings:addParam("UseSmite", "Smite Dragon, Rift Herald and Baron", SCRIPT_PARAM_ONOFF, true)
 		self.Menu.MiscSettings:addParam("SetSkin", "Select Skin", SCRIPT_PARAM_SLICE, 0, 0, 20, 0)
 			self.Menu.MiscSettings:setCallback("SetSkin", function (value) SetSkin(myHero, self.Menu.MiscSettings.SetSkin - 1) end)
-	
+
 	self.Menu:addParam("space2", "", 5, "")
 	self.Menu:addParam("signature0", "              Jungle Bundle v"..self.version, 5, "")
 	self.Menu:addParam("signature1", "            by DrPhoenix and S1mple    ", 5, "")
@@ -217,18 +217,18 @@ function Core:smite()
 				DelayAction(function() CastSpell(SmitePos, jungle) end, SmiteHumanizer)
 			end
 		end
-	end	
+	end
 end
 
 --[[
-  _____ _                 __  __                                   
- |_   _| |               |  \/  |                                  
-   | | | |_ ___ _ __ ___ | \  / | __ _ _ __   __ _  __ _  ___ _ __ 
+  _____ _                 __  __
+ |_   _| |               |  \/  |
+   | | | |_ ___ _ __ ___ | \  / | __ _ _ __   __ _  __ _  ___ _ __
    | | | __/ _ \ '_ ` _ \| |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|
-  _| |_| ||  __/ | | | | | |  | | (_| | | | | (_| | (_| |  __/ |   
- |_____|\__\___|_| |_| |_|_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|   
-                                                    __/ |          
-                                                   |___/           
+  _| |_| ||  __/ | | | | | |  | | (_| | | | | (_| | (_| |  __/ |
+ |_____|\__\___|_| |_| |_|_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|
+                                                    __/ |
+                                                   |___/
 ]]--
 Class("ItemManager")
 function ItemManager:__init(menu)
@@ -341,14 +341,14 @@ function CastSpellHumanized(menu, slot, target, posX, posY)
 end
 
 --[[
-                                                    
-     /\                                             
-    /  \__      ____ _ _ __ ___ _ __   ___  ___ ___ 
+
+     /\
+    /  \__      ____ _ _ __ ___ _ __   ___  ___ ___
    / /\ \ \ /\ / / _` | '__/ _ \ '_ \ / _ \/ __/ __|
   / ____ \ V  V / (_| | | |  __/ | | |  __/\__ \__ \
  /_/    \_\_/\_/ \__,_|_|  \___|_| |_|\___||___/___/
-                                                    
-                                                    
+
+
 ]]--
 
 Class("Awareness")
@@ -433,7 +433,7 @@ function Awareness:loadSprites()
 		for i, hero in pairs(self.enemy) do
 			self.HeroSprite[hero.charName] = GetSprite("\\JungleBundle\\Champions\\"..hero.charName..".png")
 		end
-		
+
 		self.SpellSprite["SummonerBarrier"] = GetSprite("\\JungleBundle\\Spells\\SummonerBarrier.png")
 		self.SpellSprite["SummonerMana"] = GetSprite("\\JungleBundle\\Spells\\SummonerMana.png")
 		self.SpellSprite["SummonerBoost"] = GetSprite("\\JungleBundle\\Spells\\SummonerBoost.png")
@@ -448,15 +448,15 @@ function Awareness:loadSprites()
 		self.SpellSprite["S5_SummonerSmiteDuel"] = GetSprite("\\JungleBundle\\Spells\\S5_SummonerSmiteDuel.png")
 		self.SpellSprite["SummonerTeleport"] = GetSprite("\\JungleBundle\\Spells\\SummonerTeleport.png")
 	end
-	
+
 	HPBarSprite = GetSprite("\\JungleBundle\\HPbar.png")
-	
+
 	NotificationSprite = GetSprite("\\JungleBundle\\notification.png")
 	BaronSprite = GetSprite("\\JungleBundle\\Buffs\\baron.png")
 	DragonSprite = GetSprite("\\JungleBundle\\Buffs\\dragon.png")
 	RedSprite = GetSprite("\\JungleBundle\\Buffs\\red.png")
 	BlueSprite = GetSprite("\\JungleBundle\\Buffs\\blue.png")
-	
+
 	GankSprite = GetSprite("\\JungleBundle\\gank.png")
 end
 
@@ -465,7 +465,7 @@ function Awareness:drawHUD()
 		for i, hero in pairs(self.enemy) do
 			local x = self.Menu.AwarenessSettings.HUDSettings.HUDPosX
 			local y = self.Menu.AwarenessSettings.HUDSettings.HUDPosY
-		
+
 			if self.Menu.AwarenessSettings.HUDSettings.HUDType == 1 then
 				x = self.Menu.AwarenessSettings.HUDSettings.HUDPosX + ( ( i - 1 ) * 100 )
 				y = self.Menu.AwarenessSettings.HUDSettings.HUDPosY
@@ -473,46 +473,46 @@ function Awareness:drawHUD()
 				x = self.Menu.AwarenessSettings.HUDSettings.HUDPosX
 				y = self.Menu.AwarenessSettings.HUDSettings.HUDPosY + ( ( i - 1 ) * 100 )
 			end
-			
+
 			self.HudSprite:Draw(x, y, 255)
-			
+
 			self.HeroSprite[hero.charName]:Draw(x + 5, y + 5, 255)
-			
+
 			self.SpellSprite[hero:GetSpellData(SUMMONER_1).name]:Draw(x + 58, y + 5, 255)
 			if hero:GetSpellData(SUMMONER_1).cd > 0 then
 				local cd = ( 100 - ( hero:GetSpellData(SUMMONER_1).currentCd / hero:GetSpellData(SUMMONER_1).cd * 100 ) ) / 100 * 22
 				DrawRectangle(x + 58, y + 5 + cd, 22, 22 - cd, ARGB(200,0,0,0))
 			end
-			
+
 			self.SpellSprite[hero:GetSpellData(SUMMONER_2).name]:Draw(x + 58, y + 31, 255)
 			if hero:GetSpellData(SUMMONER_2).cd > 0 then
 				local cd = ( 100 - ( hero:GetSpellData(SUMMONER_2).currentCd / hero:GetSpellData(SUMMONER_2).cd * 100 ) ) / 100 * 22
 				DrawRectangle(x + 58, y + 31 + cd, 22, 22 - cd, ARGB(200,0,0,0))
 			end
-			
+
 			DrawRectangle(x + 5, y + 38, 18, 15, ARGB(200,0,0,0))
 			DrawTextA(hero.level, 11, x + 8, y + 40, ARGB(255,255,255,255))
-			
+
 			HP = hero.health / hero.maxHealth * 75
 			if HP == 0 then
 				DrawRectangle(x + 5, y + 5, 48, 48, ARGB(200,0,0,0))
 				DrawTextA("Dead", 18, x + 11, y + 35, ARGB(255,255,0,0))
 			else
 				DrawLine(x + 5, y + 68, x + 5 + HP, y + 68, 6, ARGB(255,26,190,81))
-				
+
 				MP = hero.mana / hero.maxMana * 75
 				if MP > 0 then
 					DrawLine(x + 5, y + 77, x + 5 + MP, y + 77, 6, ARGB(255,1,130,181))
 				end
-				
+
 				DrawTextA(self:getEnemyPos(hero), 12, x + 5, y + 85, ARGB(255,255,255,255))
 			end
-			
+
 			if not hero.visible then
 				DrawRectangle(x + 5, y + 5, 48, 48, ARGB(200,0,0,0))
 				DrawTextA("SS", 30, x + 12, y + 12, ARGB(255,255,210,0))
 			end
-			
+
 			if hero:GetSpellData(_Q).level ~= 0 then
 				if hero:GetSpellData(_Q).cd == 0 then
 					cdQ = 14
@@ -522,7 +522,7 @@ function Awareness:drawHUD()
 			else
 				cdQ = nil
 			end
-			
+
 			if hero:GetSpellData(_W).level ~= 0 then
 				if hero:GetSpellData(_W).cd == 0 then
 					cdW = 14
@@ -532,7 +532,7 @@ function Awareness:drawHUD()
 			else
 				cdW = nil
 			end
-			
+
 			if hero:GetSpellData(_E).level ~= 0 then
 				if hero:GetSpellData(_E).cd == 0 then
 					cdE = 14
@@ -542,7 +542,7 @@ function Awareness:drawHUD()
 			else
 				cdE = nil
 			end
-			
+
 			if hero:GetSpellData(_R).level ~= 0 then
 				if hero:GetSpellData(_R).cd == 0 then
 					cdR = 22
@@ -552,19 +552,19 @@ function Awareness:drawHUD()
 			else
 				cdR = nil
 			end
-			
+
 			if cdQ ~= nil then
 				DrawLine(x + 5, y + 59, x + 5 + cdQ, y + 59, 4, ARGB(255,17,160,2))
 			end
-			
+
 			if cdW ~= nil then
 				DrawLine(x + 22, y + 59, x + 22 + cdW, y + 59, 4, ARGB(255,17,160,2))
 			end
-			
+
 			if cdE ~= nil then
 				DrawLine(x + 39, y + 59, x + 39 + cdE, y + 59, 4, ARGB(255,17,160,2))
 			end
-			
+
 			if cdR ~= nil then
 				DrawLine(x + 58, y + 59, x + 58 + cdR, y + 59, 4, ARGB(255,17,160,2))
 			end
@@ -607,7 +607,7 @@ function Awareness:drawHPBar()
 			local y = barPos.y + (yOff or 0) + (off.y * 53) + 2
 			local xOff = ({['AniviaEgg'] = -14,['Annie'] = -10,['Darius'] = -7,['Renekton'] = -7,['Sion'] = -7,['Thresh'] = -4,})[hero.charName]
 			local x = barPos.x + (xOff or 0) - 25
-			
+
 			if hero:GetSpellData(_Q).level ~= 0 then
 				if hero:GetSpellData(_Q).cd == 0 then
 					cdQ = 23
@@ -617,7 +617,7 @@ function Awareness:drawHPBar()
 			else
 				cdQ = 0
 			end
-			
+
 			if hero:GetSpellData(_W).level ~= 0 then
 				if hero:GetSpellData(_W).cd == 0 then
 					cdW = 23
@@ -627,7 +627,7 @@ function Awareness:drawHPBar()
 			else
 				cdW = 0
 			end
-			
+
 			if hero:GetSpellData(_E).level ~= 0 then
 				if hero:GetSpellData(_E).cd == 0 then
 					cdE = 23
@@ -637,7 +637,7 @@ function Awareness:drawHPBar()
 			else
 				cdE = 0
 			end
-			
+
 			if hero:GetSpellData(_R).level ~= 0 then
 				if hero:GetSpellData(_R).cd == 0 then
 					cdR = 23
@@ -647,7 +647,7 @@ function Awareness:drawHPBar()
 			else
 				cdR = 0
 			end
-			
+
 			if OnScreen(barPos.x, barPos.y) and not hero.dead and hero.visible then
 				HPBarSprite:Draw(x-44, y-8, 255)
 				if cdQ ~= nil then
@@ -664,20 +664,20 @@ function Awareness:drawHPBar()
 				end
 			end
 		end
-		
+
 		for i, hero in pairs(self.enemy) do
 			local cdQ
 			local cdW
 			local cdE
 			local cdR
-			
+
 			local barPos = GetUnitHPBarPos(hero)
 			local off = GetUnitHPBarOffset(hero)
 			local yOff = ({['Annie'] = -12})[hero.charName]
 			local y = barPos.y + (yOff or 0) + (off.y * 53) + 2
 			local xOff = ({['AniviaEgg'] = -14,['Annie'] = -10,['Darius'] = -7,['Renekton'] = -7,['Sion'] = -7,['Thresh'] = -4,})[hero.charName]
 			local x = barPos.x + (xOff or 0) - 25
-			
+
 			if hero:GetSpellData(_Q).level ~= 0 then
 				if hero:GetSpellData(_Q).cd == 0 then
 					cdQ = 23
@@ -687,7 +687,7 @@ function Awareness:drawHPBar()
 			else
 				cdQ = 0
 			end
-			
+
 			if hero:GetSpellData(_W).level ~= 0 then
 				if hero:GetSpellData(_W).cd == 0 then
 					cdW = 23
@@ -697,7 +697,7 @@ function Awareness:drawHPBar()
 			else
 				cdW = 0
 			end
-			
+
 			if hero:GetSpellData(_E).level ~= 0 then
 				if hero:GetSpellData(_E).cd == 0 then
 					cdE = 23
@@ -707,7 +707,7 @@ function Awareness:drawHPBar()
 			else
 				cdE = 0
 			end
-			
+
 			if hero:GetSpellData(_R).level ~= 0 then
 				if hero:GetSpellData(_R).cd == 0 then
 					cdR = 23
@@ -717,7 +717,7 @@ function Awareness:drawHPBar()
 			else
 				cdR = 0
 			end
-			
+
 			if OnScreen(barPos.x, barPos.y) and not hero.dead and hero.visible then
 				HPBarSprite:Draw(x-44, y-6, 255)
 				if cdQ ~= nil then
@@ -761,7 +761,7 @@ function Awareness:CreateObj(obj)
 	if obj.name == "SRU_Dragon_Death.troy" then
 		DTimer = 1000 * ( GetInGameTimer() + 360 )
 	end
-	
+
 	if obj.name == "SRU_Baron_Death.troy" then
 		BTimer = 1000 * ( GetInGameTimer() + 420 )
 	end
@@ -799,7 +799,7 @@ function Awareness:Animation(unit, animation)
 			BTBB = BTBB + 1
 		end
 	end
-	
+
 	-- Blue Buff / Red Team
 	if unit.name == "SRU_Blue7.1.1" and animation == "Death" then
 		if RTBB == nil then
@@ -831,7 +831,7 @@ function Awareness:Animation(unit, animation)
 			RTBB = RTBB + 1
 		end
 	end
-	
+
 	-- Red Buff / Blue Team
 	if unit.name == "SRU_Red4.1.1" and animation == "Death" then
 		if BTRB == nil then
@@ -863,7 +863,7 @@ function Awareness:Animation(unit, animation)
 			BTRB = BTRB + 1
 		end
 	end
-	
+
 	-- Red Buff / Red Team
 	if unit.name == "SRU_Red10.1.1" and animation == "Death" then
 		if RTRB == nil then
@@ -901,7 +901,7 @@ function Awareness:Timers()
 	-- Baron
 	if BTimer ~= nil then
 		if BTimer == 0 then
-			
+
 		else
 			BTimer = BTimer - 1
 			BRespawnS = (BTimer - ( GetInGameTimer() * 1000))/1000
@@ -910,11 +910,11 @@ function Awareness:Timers()
 			BRespawn = nMins..":" ..nSecs
 		end
 	end
-	
+
 	-- Dragon
 	if DTimer ~= nil then
 		if DTimer == 0 then
-			
+
 		else
 			DTimer = DTimer - 1
 			DRespawnS = (DTimer - ( GetInGameTimer() * 1000))/1000
@@ -923,11 +923,11 @@ function Awareness:Timers()
 			DRespawn = nMins..":" ..nSecs
 		end
 	end
-	
+
 	-- Blue Buff / Blue Team
 	if BTBBTimer ~= nil then
 		if BTBBTimer == 0 then
-			
+
 		else
 			BTBBTimer = BTBBTimer - 1
 			BTBBRespawnS = (BTBBTimer - ( GetInGameTimer() * 1000))/1000
@@ -936,11 +936,11 @@ function Awareness:Timers()
 			BTBBRespawn = nMins..":" ..nSecs
 		end
 	end
-	
+
 	-- Blue Buff / Red Team
 	if RTBBTimer ~= nil then
 		if RTBBTimer == 0 then
-			
+
 		else
 			RTBBTimer = RTBBTimer - 1
 			RTBBRespawnS = (RTBBTimer - ( GetInGameTimer() * 1000))/1000
@@ -949,11 +949,11 @@ function Awareness:Timers()
 			RTBBRespawn = nMins..":" ..nSecs
 		end
 	end
-	
+
 	-- Red Buff / Blue Team
 	if BTRBTimer ~= nil then
 		if BTRBTimer == 0 then
-			
+
 		else
 			BTRBTimer = BTRBTimer - 1
 			BTRBRespawnS = (BTRBTimer - ( GetInGameTimer() * 1000))/1000
@@ -962,11 +962,11 @@ function Awareness:Timers()
 			BTRBRespawn = nMins..":" ..nSecs
 		end
 	end
-	
+
 	-- Red Buff / Red Team
 	if RTRBTimer ~= nil then
 		if RTRBTimer == 0 then
-			
+
 		else
 			RTRBTimer = RTRBTimer - 1
 			RTRBRespawnS = (RTRBTimer - ( GetInGameTimer() * 1000))/1000
@@ -979,7 +979,7 @@ end
 
 function Awareness:drawTimers()
 	local x = WINDOW_W - 200
-	
+
 	-- Exemple of notification for Baron
 	if BRespawnS < 60 and BRespawnS ~= nil then
 		local y = WINDOW_H - 450
@@ -988,16 +988,16 @@ function Awareness:drawTimers()
 		DrawTextA("Baron", 23, x + 120, y + 11, ARGB(255,25,148,115))
 		DrawTextA(BRespawn, 35, x + 108, y + 43, ARGB(255,25,148,115))
 	end
-	
+
 	-- Second notif
 	-- local y = WINDOW_H - 575
-	
+
 	-- Third notif
 	-- local y = WINDOW_H - 700
-	
+
 	-- Last notif
 	-- local y = WINDOW_H - 825
-	
+
 	-- Coords for text
 	-- DrawTextA("Baron", 23, x + 120, y + 11, ARGB(255,25,148,115))
 	-- DrawTextA("Dragon", 23, x + 115, y + 11, ARGB(255,25,148,115))
@@ -1009,13 +1009,13 @@ function Awareness:drawEnemyJungler()
 	local x = ( WINDOW_W / 2 ) - 300
 	local y = WINDOW_H * 0.2
 	local count = 0
-	
+
 	for i, hero in pairs(self.junglers) do
 		if hero and hero.visible and not hero.dead then
 			count = count + 1
 			GankSprite:Draw(x, y, 255)
 			GankSprite:SetScale(0.5, 0.5)
-	
+
 			DrawTextA(self:getJunglerPos(hero), 35, x + 70, y + ( ( count - 1 ) * 50 ), ARGB(255,226,152,0))
 		end
 	end
@@ -1048,7 +1048,7 @@ function Awareness:getJunglerPos(hero)
 end
 
 -- Made by Whitex22. --
-function Awareness:CreateWard(object) 
+function Awareness:CreateWard(object)
 	if Core.Menu.AwarenessSettings.WardTrackerON then
 		if object and (object.name:lower():find("visionward") or object.name:lower():find("sightward")) and object.networkID ~= 0 then
 			if object.team ~= myHero.team then
@@ -1071,9 +1071,9 @@ function Awareness:CreateWard(object)
 	end
 end
 
-function Awareness:DeleteWard(object) 
+function Awareness:DeleteWard(object)
 	if Core.Menu.AwarenessSettings.WardTrackerON then
-		if object and object.name and (object.name:lower():find("visionward") or object.name:lower():find("sightward")) and object.networkID ~= 0 then	
+		if object and object.name and (object.name:lower():find("visionward") or object.name:lower():find("sightward")) and object.networkID ~= 0 then
 			i = 1
 			while i < self.wardNumber do
 				if(self.wards[i]) then
@@ -1088,7 +1088,7 @@ function Awareness:DeleteWard(object)
 	end
 end
 
-function Awareness:GetDrawPoints(index) 
+function Awareness:GetDrawPoints(index)
 	local i = 1
 	local wardVector = Vector(self.wards[index][1], self.wards[index][2], self.wards[index][3])
 	local alpha = 0
@@ -1097,7 +1097,7 @@ function Awareness:GetDrawPoints(index)
 		alpha = alpha + 360 / 36 / value
 		self.wards[index][4+i] = {}
 		a = 0.1
-		self.wards[index][4 + i][1] = wardVector.x 
+		self.wards[index][4 + i][1] = wardVector.x
 		self.wards[index][4 + i][2] = wardVector.y
 		self.wards[index][4 + i][3] = wardVector.z + 110
 		while (not IsWall(D3DXVECTOR3(self.wards[index][4 + i][1], self.wards[index][4 + i][2], self.wards[index][4 + i][3]))) and a < 0.9 do
@@ -1137,14 +1137,14 @@ function Awareness:drawWards()
 end
 
 --[[
-   _____ _                           _                _____ _                         
-  / ____| |                         (_)              / ____| |                        
- | |    | |__   __ _ _ __ ___  _ __  _  ___  _ __   | |    | | __ _ ___ ___  ___  ___ 
+   _____ _                           _                _____ _
+  / ____| |                         (_)              / ____| |
+ | |    | |__   __ _ _ __ ___  _ __  _  ___  _ __   | |    | | __ _ ___ ___  ___  ___
  | |    | '_ \ / _` | '_ ` _ \| '_ \| |/ _ \| '_ \  | |    | |/ _` / __/ __|/ _ \/ __|
  | |____| | | | (_| | | | | | | |_) | | (_) | | | | | |____| | (_| \__ \__ \  __/\__ \
   \_____|_| |_|\__,_|_| |_| |_| .__/|_|\___/|_| |_|  \_____|_|\__,_|___/___/\___||___/
-                              | |                                                     
-                              |_|                                                     
+                              | |
+                              |_|
 ]]--
 
 Class("_Evelynn")
@@ -1276,7 +1276,7 @@ function _Evelynn:c()
 		targets = self.TargetSelector:GetEnemyHeroesInRange(1150) --Cast Range + Spell Width
 		local predictedpos = {}
 		if #targets >= self.menu.Evelynn.c.minR then
-			
+
 			for _,v in ipairs(targets) do
 				CastPosition, HitChance, _ = UPL:Predict(_R, myHero,v)
 				if CastPosition and HitChance > 0 then
@@ -1294,12 +1294,12 @@ end
 
 Class("_Hecarim")
 function _Hecarim:__init()
-	
+
 end
 
 Class("_Maokai")
 function _Maokai:__init()
-	
+
 end
 
 Class("_Nocturne")
@@ -1464,53 +1464,53 @@ end
 
 Class("_Nunu")
 function _Nunu:__init()
-	
+
 end
 
 Class("_Rammus")
 function _Rammus:__init()
-	
+
 end
 
 Class("_RekSai")
 function _RekSai:__init()
-	
+
 end
 
 Class("_Shyvana")
 function _Shyvana:__init()
-	
+
 end
 
 Class("_Skarner")
 function _Skarner:__init()
-	
+
 end
 
 Class("_Trundle")
 function _Trundle:__init()
-	
+
 end
 
 Class("_Vi")
 function _Vi:__init()
-	
+
 end
 
 Class("_Zac")
 function _Zac:__init()
-	
+
 end
 
 --[[
-  _______                   _    _____      _           _             
- |__   __|                 | |  / ____|    | |         | |            
-    | | __ _ _ __ __ _  ___| |_| (___   ___| | ___  ___| |_ ___  _ __ 
+  _______                   _    _____      _           _
+ |__   __|                 | |  / ____|    | |         | |
+    | | __ _ _ __ __ _  ___| |_| (___   ___| | ___  ___| |_ ___  _ __
     | |/ _` | '__/ _` |/ _ \ __|\___ \ / _ \ |/ _ \/ __| __/ _ \| '__|
-    | | (_| | | | (_| |  __/ |_ ____) |  __/ |  __/ (__| || (_) | |   
-    |_|\__,_|_|  \__, |\___|\__|_____/ \___|_|\___|\___|\__\___/|_|   
-                  __/ |                                               
-                 |___/                                                
+    | | (_| | | | (_| |  __/ |_ ____) |  __/ |  __/ (__| || (_) | |
+    |_|\__,_|_|  \__, |\___|\__|_____/ \___|_|\___|\___|\__\___/|_|
+                  __/ |
+                 |___/
 ]]--
 
 Class("TargetSelector")
@@ -1536,7 +1536,7 @@ function TargetSelector:__init()
 				end
 			else
 				if object.charName:find("Minion") then
-					self.AllyForces[object.networkID] = object 
+					self.AllyForces[object.networkID] = object
 				end
 			end
 		elseif object and object.valid and object.health and object.health > 1 and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") and object.team ~= myHero.team then
@@ -1554,7 +1554,7 @@ function TargetSelector:__init()
 				end
 			else
 				if object.charName:find("Minion") then
-					self.AllyForces[object.networkID] = object 
+					self.AllyForces[object.networkID] = object
 				end
 			end
 		elseif object and object.valid and object.health and object.health > 1 and (object.type == "obj_AI_Turret" or object.type == "obj_HQ" or object.type == "obj_BarracksDampener") and object.team ~= myHero.team then
@@ -1652,7 +1652,7 @@ function TargetSelector:GetAllEnemyMinions(range)
 		if GetDistance(v) < range+v.boundingRadius then
 			n[#n+1] = v
 		end
-	end	
+	end
 	return n
 end
 
@@ -1717,13 +1717,13 @@ function TargetSelector:GetEnemyHeroesInRangeAroundChamp(range,champ)
 end
 
 --[[
-  _____                      _                 _ 
+  _____                      _                 _
  |  __ \                    | |               | |
  | |  | | _____      ___ __ | | ___   __ _  __| |
  | |  | |/ _ \ \ /\ / / '_ \| |/ _ \ / _` |/ _` |
  | |__| | (_) \ V  V /| | | | | (_) | (_| | (_| |
  |_____/ \___/ \_/\_/ |_| |_|_|\___/ \__,_|\__,_|
-                                                 
+
 
 ]]--
 
@@ -1803,10 +1803,10 @@ function Download:__init()
 			--Start Main Download
 			self.DLsocket:send('GET '..self.filepath..' HTTP/1.1'.. self.CRLF ..'Host: '..self.host.. self.CRLF ..'User-Agent: Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2228.0 Safari/537.36'.. self.CRLF .. self.CRLF)
 		end
-		
+
 		if self.DLsocket and self.DLcStatus ~= "timeout" and self.DLcStatus ~= "closed" then
 			self.DLfString, self.DLcStatus, self.DLpString = self.DLsocket:receive(1024);
-			
+
 			if ((self.DLfString) or (self.DLpString and #self.DLpString > 0)) then
 				self.DLdata = self.DLdata .. (self.DLfString or self.DLpString)
 			end
@@ -1868,14 +1868,14 @@ function Download:RemoveDone()
 end
 
 --[[
-   ____       _ __          __   _ _             __  __                                   
-  / __ \     | |\ \        / /  | | |           |  \/  |                                  
- | |  | |_ __| |_\ \  /\  / /_ _| | | _____ _ __| \  / | __ _ _ __   __ _  __ _  ___ _ __ 
+   ____       _ __          __   _ _             __  __
+  / __ \     | |\ \        / /  | | |           |  \/  |
+ | |  | |_ __| |_\ \  /\  / /_ _| | | _____ _ __| \  / | __ _ _ __   __ _  __ _  ___ _ __
  | |  | | '__| '_ \ \/  \/ / _` | | |/ / _ \ '__| |\/| |/ _` | '_ \ / _` |/ _` |/ _ \ '__|
- | |__| | |  | |_) \  /\  / (_| | |   <  __/ |  | |  | | (_| | | | | (_| | (_| |  __/ |   
-  \____/|_|  |_.__/ \/  \/ \__,_|_|_|\_\___|_|  |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|   
-                                                                           __/ |          
-                                                                          |___/           
+ | |__| | |  | |_) \  /\  / (_| | |   <  __/ |  | |  | | (_| | | | | (_| | (_| |  __/ |
+  \____/|_|  |_.__/ \/  \/ \__,_|_|_|\_\___|_|  |_|  |_|\__,_|_| |_|\__,_|\__, |\___|_|
+                                                                           __/ |
+                                                                          |___/
 ]]--
 class("OrbWalkerManager")
 function OrbWalkerManager:__init(menu, ts)
@@ -1979,7 +1979,7 @@ function OrbWalkerManager:GetOrbMode()
 		if SAC:GetActiveMode() == "Laneclear" then return 2 end
 		if SAC:GetActiveMode() == "LastHit" then return 3 end
 		if SAC:GetActiveMode() == "AutoCarry" then return 4 end
-		if self.Menu.KeySettings.JungleClearON then return 5 end		
+		if self.Menu.KeySettings.JungleClearON then return 5 end
 		return 0
 	elseif self.LoadedOrbWalker == "MMA" then
 		if _G.MMA_IsDualCarrying() then return 1 end
@@ -2080,14 +2080,14 @@ end
 
 
 --[[
-   ____        _                     _ 
+   ____        _                     _
   / __ \      | |                   | |
  | |  | |_ __ | |     ___   __ _  __| |
  | |  | | '_ \| |    / _ \ / _` |/ _` |
  | |__| | | | | |___| (_) | (_| | (_| |
   \____/|_| |_|______\___/ \__,_|\__,_|
-                                       
-                                       
+
+
 ]]--
 function OnLoad()
 	Core = Core()
